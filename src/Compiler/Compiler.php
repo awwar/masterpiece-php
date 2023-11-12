@@ -13,7 +13,7 @@ class Compiler
     {
     }
 
-    public function compile(CompileSetting $settings): void
+    public function compile(CompileContext $settings): void
     {
         try {
             $this->filesystem->recursiveRemoveDirectory($settings->getGenerationPath());

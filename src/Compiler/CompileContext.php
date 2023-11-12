@@ -5,7 +5,7 @@ namespace Awwar\MasterpiecePhp\Compiler;
 use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
 use Awwar\MasterpiecePhp\Config\ConfigInterface;
 
-class CompileSetting
+class CompileContext
 {
     private array $configs = [];
 
