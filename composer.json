@@ -8,6 +8,9 @@
             "Awwar\\MasterpiecePhp\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": { "Awwar\\MasterpiecePhp\\Tests\\": "tests/" }
+    },
     "authors": [
         {
             "name": "awwar"
