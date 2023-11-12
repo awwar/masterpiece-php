@@ -1,25 +1,19 @@
 <?php
 
-namespace Compiler;
+namespace Awwar\MasterpiecePhp\Tests\Compiler;
 
+use Awwar\MasterpiecePhp\Compiler\CompileContext;
 use Awwar\MasterpiecePhp\Compiler\Compiler;
-use Awwar\MasterpiecePhp\Compiler\CompileSetting;
-use Awwar\MasterpiecePhp\Container\Container;
-use Awwar\MasterpiecePhp\Container\ContainerFactory;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
-use PHPUnit\Framework\TestCase;
+use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
 
-class CompilerTest extends TestCase
+class CompilerTest extends CaseWithContainer
 {
-    private Container $container;
-
-    private const TEST_COMPILE_PATH = __DIR__.'/../../var/test_compile';
+    private const TEST_COMPILE_PATH = __DIR__ . '/../../var/test_compile';
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->container = (new ContainerFactory())->create();
 
         $filesystem = $this->container->get(Filesystem::class);
 
@@ -30,12 +24,13 @@ class CompilerTest extends TestCase
     {
         $compiler = $this->container->get(Compiler::class);
 
-        $path = self::TEST_COMPILE_PATH.'/'.uniqid();
+        $path = self::TEST_COMPILE_PATH . '/' . uniqid();
 
-        $settings = new CompileSetting($path);
+        $settings = new CompileContext($path);
 
         $compiler->compile($settings);
 
         self::assertDirectoryExists($path);
     }
 }
+

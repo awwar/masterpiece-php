@@ -1,6 +1,6 @@
 <?php
 
-namespace Container;
+namespace Awwar\MasterpiecePhp\Tests\Container;
 
 use Awwar\MasterpiecePhp\Compiler\Compiler;
 use Awwar\MasterpiecePhp\Container\ContainerFactory;
