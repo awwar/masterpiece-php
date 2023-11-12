@@ -3,10 +3,11 @@
 namespace Awwar\MasterpiecePhp\Container;
 
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
+use Awwar\MasterpiecePhp\Container\Attributes\ServicesIterator;
 use Awwar\MasterpiecePhp\Container\Exception\NotFoundException;
 use Psr\Container\ContainerInterface;
+use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionMethod;
 use RuntimeException;
 
 class Container implements ContainerInterface
@@ -16,7 +17,7 @@ class Container implements ContainerInterface
     private array $interfaces = [];
 
     /**
-     * @var iterable<class-string, ReflectionMethod> $classes
+     * @var iterable<class-string, ClassSettings> $classes
      */
     private array $classes = [];
 
@@ -26,7 +27,7 @@ class Container implements ContainerInterface
     public function __construct(iterable $serviceClasses)
     {
         foreach ($serviceClasses as $reflection) {
-            if (count($reflection->getAttributes(ForDependencyInjection::class)) === 0) {
+            if (empty($reflection->getAttributes(ForDependencyInjection::class))) {
                 continue;
             }
 
@@ -59,9 +60,21 @@ class Container implements ContainerInterface
      */
     public function get(string $id): object
     {
-        if ($this->has($id)) {
-            return $this->services[$id];
+        if (false === $this->has($id)) {
+            $this->services[$id] = $this->createService($id);
         }
+
+        return $this->services[$id];
+    }
+
+    public function has(string $id): bool
+    {
+        return isset($this->services[$id]);
+    }
+
+    private function createService(string $serviceId): object
+    {
+        $id = $serviceId;
 
         if (isset($this->interfaces[$id])) {
             $classes = $this->interfaces[$id];
@@ -78,46 +91,48 @@ class Container implements ContainerInterface
         }
 
         if (false === isset($this->classes[$id])) {
-            throw new NotFoundException(sprintf('Service %s not found', $id));
+            throw new NotFoundException(sprintf('Class %s not found in container', $id));
         }
 
-        /*
-         * @var ClassSettings $classSettings
-         */
         $classSettings = $this->classes[$id];
 
         $arguments = [];
 
-        /*
-         * @var ReflectionParameter $parameter
-         */
         foreach ($classSettings->getConstructorParams() as $parameter) {
             $type = $parameter->getType();
 
-            if ($type && !$type->isBuiltin()) {
+            if (false === empty($parameter->getAttributes(ServicesIterator::class))) {
+                /** @var ReflectionAttribute $attribute */
+                $attribute = $parameter->getAttributes(ServicesIterator::class)[0];
+
+                $instanceOf = $attribute->newInstance()->getInstanceOf();
+
+                $arguments[] = $this->getInstanceOfIterator($instanceOf);
+            } elseif ($type && !$type->isBuiltin()) {
                 $arguments[] = $this->get($type->getName());
+            } elseif ($parameter->isDefaultValueAvailable()) {
+                $arguments[] = $parameter->getDefaultValue();
+            } elseif ($parameter->allowsNull()) {
+                $arguments[] = null;
             } else {
-                if ($parameter->isDefaultValueAvailable()) {
-                    $arguments[] = $parameter->getDefaultValue();
-                } else {
-                    if ($parameter->allowsNull()) {
-                        $arguments[] = null;
-                    } else {
-                        throw new RuntimeException(
-                            sprintf('Cant instantiate service %s, cause of %s parameter', $id, $parameter->getName())
-                        );
-                    }
-                }
+                throw new RuntimeException(
+                    sprintf('Cant instantiate service %s, cause of %s parameter', $id, $parameter->getName())
+                );
             }
         }
 
         $className = $classSettings->getFqcn();
 
-        return $this->services[$id] = new $className(...$arguments);
+        return new $className(...$arguments);
     }
 
-    public function has(string $id): bool
+    private function getInstanceOfIterator(string $instanceOf): iterable
     {
-        return isset($this->services[$id]);
+        $classesWhoImplements = $this->interfaces[$instanceOf]
+            ?? throw new RuntimeException("Nobody implements $instanceOf");
+
+        foreach ($classesWhoImplements as $id) {
+            yield $this->get($id);
+        }
     }
 }
