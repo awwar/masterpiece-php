@@ -2,10 +2,12 @@
 
 namespace Awwar\MasterpiecePhp\Tests\Compiler;
 
+use Awwar\MasterpiecePhp\AddOns\BasicNodes\BasicNodeAddon;
 use Awwar\MasterpiecePhp\Compiler\CompileContext;
 use Awwar\MasterpiecePhp\Compiler\Compiler;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
+use Throwable;
 
 class CompilerTest extends CaseWithContainer
 {
@@ -17,7 +19,11 @@ class CompilerTest extends CaseWithContainer
 
         $filesystem = $this->container->get(Filesystem::class);
 
-        $filesystem->recursiveRemoveDirectory(self::TEST_COMPILE_PATH);
+        try {
+            $filesystem->recursiveRemoveDirectory(self::TEST_COMPILE_PATH);
+        } catch (Throwable) {
+
+        }
     }
 
     public function testCompileWhenOk(): void
@@ -28,9 +34,15 @@ class CompilerTest extends CaseWithContainer
 
         $settings = new CompileContext($path);
 
+        $settings->addAddOn(new BasicNodeAddon());
+
         $compiler->compile($settings);
 
         self::assertDirectoryExists($path);
+
+        include_once $path . '/basic_node_sum.php';
+
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_sum::class));
     }
 }
 

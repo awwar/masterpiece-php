@@ -5,7 +5,7 @@ namespace Awwar\MasterpiecePhp\Tests\Compiler\ConfigCompiler;
 use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy\ContractCompileStrategy;
 use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy\EndpointCompileStrategy;
 use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy\FlowCompileStrategy;
-use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\StrategyFactory;
+use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\ConfigCompileStrategyFactory;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
 
 class StrategyFactoryTest extends CaseWithContainer
@@ -27,7 +27,7 @@ class StrategyFactoryTest extends CaseWithContainer
      */
     public function testCreateWhenOk(string $strategyName, string $className): void
     {
-        $factory = $this->container->get(StrategyFactory::class);
+        $factory = $this->container->get(ConfigCompileStrategyFactory::class);
 
         $strategy = $factory->create($strategyName);
 

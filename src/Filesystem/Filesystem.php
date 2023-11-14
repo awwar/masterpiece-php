@@ -28,7 +28,18 @@ class Filesystem
 
     public function createDirectory(string $path): void
     {
-        mkdir($path, recursive: true);
+        mkdir($path, permissions: 0755, recursive: true);
+    }
+
+    public function createFile(string $path, string $content): void
+    {
+        $handle = fopen($path, "w");
+
+        try {
+            fwrite($handle, $content);
+        } finally {
+            fclose($handle);
+        }
     }
 
     public function recursiveRemoveDirectory(string $path): void

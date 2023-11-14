@@ -5,7 +5,7 @@ namespace Awwar\MasterpiecePhp\Compiler\ConfigCompiler;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
 #[ForDependencyInjection]
-interface ConfigCompilerInterface
+interface ConfigCompileStrategyInterface
 {
     public function getConfigName(): string;
 

@@ -7,16 +7,16 @@ use Awwar\MasterpiecePhp\Container\Attributes\ServicesIterator;
 use RuntimeException;
 
 #[ForDependencyInjection]
-class StrategyFactory
+class ConfigCompileStrategyFactory
 {
-    /** @param ConfigCompilerInterface[] $strategies */
+    /** @param ConfigCompileStrategyInterface[] $strategies */
     public function __construct(
-        #[ServicesIterator(instanceOf: ConfigCompilerInterface::class)]
+        #[ServicesIterator(instanceOf: ConfigCompileStrategyInterface::class)]
         private iterable $strategies
     ) {
     }
 
-    public function create(string $name): ConfigCompilerInterface
+    public function create(string $name): ConfigCompileStrategyInterface
     {
         foreach ($this->strategies as $strategy) {
             if ($strategy->getConfigName() === $name) {
