@@ -17,6 +17,7 @@ class ConfigCompiler
     {
         $strategy = $this->factory->create($config->getType());
 
-        $classVisitor->createClass('app', $config->getName(), $strategy->compile($config->getParams())); //ToDo: config compile logic
+        //ToDo: config compile logic
+        $classVisitor->createClass('app', $config->getName(), $strategy->compile($config->getParams()));
     }
 }
