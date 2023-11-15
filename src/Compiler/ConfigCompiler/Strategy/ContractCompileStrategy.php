@@ -13,7 +13,7 @@ class ContractCompileStrategy implements ConfigCompileStrategyInterface
         return 'contract';
     }
 
-    public function compile(): string
+    public function compile(array $params): string
     {
         return ""; //ToDo: contract compile logic
     }

@@ -9,5 +9,5 @@ interface ConfigCompileStrategyInterface
 {
     public function getConfigName(): string;
 
-    public function compile(): string;
+    public function compile(array $params): string;
 }

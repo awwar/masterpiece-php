@@ -13,7 +13,7 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
         return 'flow';
     }
 
-    public function compile(): string
+    public function compile(array $params): string
     {
         return ""; //ToDo: flow compile logic
     }

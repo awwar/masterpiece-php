@@ -1,0 +1,67 @@
+---
+type: flow
+name: additional_endpoint_flow
+params:
+    input:
+        -   contract: int
+            name: a
+        -   contract: int
+            name: b
+
+    output:
+        -   contract: additional_endpoint_output
+            name: c
+
+    sockets:
+        55f42207-fdc5-4ac2-8b0b-c66c5891c917:
+            type: node
+            settings:
+                node: number_node_1
+                input: { }
+        42d18110-f2d7-40d7-85d3-516887b96b33:
+            type: node
+            settings:
+                node: node_addition_1
+                input:
+                    -   variable: a
+                        path:
+                            - value
+                    -   variable: b
+                        path:
+                            - value
+        42d18110-f2d7-40d7-85d3-516887b96b34:
+            type: node
+            settings:
+                node: node_addition_2
+                input:
+                    -   node: number_node_1
+                        path:
+                            - value
+                    -   node: node_addition_1
+                        path:
+                            - value
+        65c4e818-46d2-4868-83fd-c7b21989ef8b:
+            type: node
+            settings:
+                node: output
+                input:
+                    -   node: node_addition_2
+                        path:
+                            - value
+    map:
+        55f42207-fdc5-4ac2-8b0b-c66c5891c917:
+            - { condition: true, id: 42d18110-f2d7-40d7-85d3-516887b96b33 }
+        42d18110-f2d7-40d7-85d3-516887b96b33:
+            - { condition: true, id: 42d18110-f2d7-40d7-85d3-516887b96b34 }
+        42d18110-f2d7-40d7-85d3-516887b96b34:
+            - { condition: true, id: 65c4e818-46d2-4868-83fd-c7b21989ef8b }
+    nodes:
+        node_addition_1:
+            option: { }
+            pattern: addition
+        node_addition_2:
+            option: { }
+            pattern: addition
+        number_node_1:
+            option: { }
+            pattern: number_node

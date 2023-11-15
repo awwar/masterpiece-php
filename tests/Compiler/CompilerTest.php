@@ -40,9 +40,9 @@ class CompilerTest extends CaseWithContainer
 
         self::assertDirectoryExists($path);
 
-        include_once $path . '/basic_node_sum.php';
+        include_once $path . '/basic_node_addition.php';
 
-        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_sum::class));
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_addition::class));
     }
 }
 

@@ -15,8 +15,8 @@ class ConfigCompiler
 
     public function compile(ConfigInterface $config, ClassVisitorInterface $classVisitor): void
     {
-        $strategy = $this->factory->create($config->getEntityName());
+        $strategy = $this->factory->create($config->getType());
 
-        $classVisitor->createClass('unknown', 'unknown', $strategy->compile()); //ToDo: config compile logic
+        $classVisitor->createClass('app', $config->getName(), $strategy->compile($config->getParams())); //ToDo: config compile logic
     }
 }

@@ -13,7 +13,7 @@ class EndpointCompileStrategy implements ConfigCompileStrategyInterface
         return 'endpoint';
     }
 
-    public function compile(): string
+    public function compile(array $params): string
     {
         return ""; //ToDo: endpoint compile logic
     }

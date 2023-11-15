@@ -3,6 +3,7 @@
 namespace Awwar\MasterpiecePhp\Compiler\AddOnCompiler;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\Compiler\ClassVisitorInterface;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
@@ -17,12 +18,15 @@ class AddOnCompiler
 
         $addOn->compile($visitor);
 
-        foreach ($visitor->getNodes() as $nodeName => $node) {
-            $arguments = "";
-
-            foreach ($node->getInput() as $value) {
-                $arguments .= "\$$value, ";
-            }
+        foreach ($visitor->getNodes() as $node) {
+            $arguments = $node
+                ->getInput()
+                ->reduce(
+                    fn (NodeInput $input, string $argString) => $argString === ""
+                        ? '$' . $input->getName()
+                        : "$argString, \${$input->getName()}",
+                    ""
+                );
 
             $body = $node->getBody();
 
@@ -33,7 +37,7 @@ public static function execute($arguments): mixed
 }
 PHP;
 
-            $classCreator->createClass($addonName, $nodeName, $code);
+            $classCreator->createClass($addonName, $node->getName(), $code);
         }
     }
 }

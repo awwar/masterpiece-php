@@ -1,0 +1,8 @@
+---
+type: endpoint
+name: additional_endpoint
+params:
+    type: http
+    method: POST
+    route: /test3
+    flow: additional_endpoint_flow
