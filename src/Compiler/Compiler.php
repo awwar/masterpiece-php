@@ -25,7 +25,6 @@ class Compiler
         try {
             $this->filesystem->recursiveRemoveDirectory($path);
         } catch (Throwable) {
-
         }
 
         $this->filesystem->createDirectory($path);

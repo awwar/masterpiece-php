@@ -14,7 +14,6 @@ class CompileContext
 
     public function __construct(private string $generationPath)
     {
-
     }
 
     public function addConfig(ConfigInterface $masterpieceConfig): void

@@ -6,15 +6,13 @@ use ReflectionParameter;
 
 class ClassSettings
 {
-    public function __construct(private string $fqcn, private array $constructorParams=[])
+    public function __construct(private string $fqcn, private array $constructorParams = [])
     {
-
     }
 
     public function getFqcn(): string
     {
         return $this->fqcn;
-
     }
 
     /**
@@ -23,6 +21,5 @@ class ClassSettings
     public function getConstructorParams(): array
     {
         return $this->constructorParams;
-
     }
 }

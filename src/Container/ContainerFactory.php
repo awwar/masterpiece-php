@@ -8,7 +8,7 @@ class ContainerFactory
 {
     public function create(): ContainerInterface
     {
-        $scanPath = __DIR__.'/..';
+        $scanPath = __DIR__ . '/..';
 
         $discover = new ServicesDiscover();
 
