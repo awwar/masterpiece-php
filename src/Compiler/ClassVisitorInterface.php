@@ -4,5 +4,5 @@ namespace Awwar\MasterpiecePhp\Compiler;
 
 interface ClassVisitorInterface
 {
-    public function createClass(string $namespace, string $name, string $code): void;
+    public function createClass(string $name, string $code): void;
 }

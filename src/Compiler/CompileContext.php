@@ -21,6 +21,9 @@ class CompileContext
         $this->configs[] = $masterpieceConfig;
     }
 
+    /**
+     * @return ConfigInterface[]
+     */
     public function getConfigs(): array
     {
         return $this->configs;
@@ -31,6 +34,9 @@ class CompileContext
         $this->addOns[] = $addOn;
     }
 
+    /**
+     * @return AddOnInterface[]
+     */
     public function getAddOns(): array
     {
         return $this->addOns;

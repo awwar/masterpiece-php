@@ -6,9 +6,9 @@ class ClassVisitor implements ClassVisitorInterface
 {
     private array $classes = [];
 
-    public function createClass(string $namespace, string $name, string $code): void
+    public function createClass(string $name, string $code): void
     {
-        $this->classes[$namespace][$name] = $code;
+        $this->classes[$name] = $code;
     }
 
     public function getClasses(): array

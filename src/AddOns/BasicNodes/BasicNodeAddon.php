@@ -59,6 +59,14 @@ class BasicNodeAddon implements AddOnInterface
         );
         $addOnCompileVisitor->setNode($power);
 
+        //ToDo: this node will compile with settings
+        $number = new AddOnNode(
+            name: 'number',
+            input: NodeInputSet::create(),
+            body: 'return {{value}};'
+        );
+        $addOnCompileVisitor->setNode($number);
+
         $if = new AddOnStructure(
             name: 'if',
             body: 'if (true) {

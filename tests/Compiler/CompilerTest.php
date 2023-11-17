@@ -5,6 +5,7 @@ namespace Awwar\MasterpiecePhp\Tests\Compiler;
 use Awwar\MasterpiecePhp\AddOns\BasicNodes\BasicNodeAddon;
 use Awwar\MasterpiecePhp\Compiler\CompileContext;
 use Awwar\MasterpiecePhp\Compiler\Compiler;
+use Awwar\MasterpiecePhp\Config\Config;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
 use Throwable;
@@ -35,6 +36,85 @@ class CompilerTest extends CaseWithContainer
         $settings = new CompileContext($path);
 
         $settings->addAddOn(new BasicNodeAddon());
+
+        $settings->addConfig(
+            new Config(
+                name: 'my_test_flow',
+                type: 'flow',
+                params: [
+                    'input'   => [
+                        [
+                            'contract' => 'int',
+                            'name'     => 'a',
+                        ],
+                    ],
+                    'output'  => [
+                        [
+                            'contract' => 'int',
+                            'name'     => 'b',
+                        ],
+                    ],
+                    'sockets' => [
+                        'socket_1' => [
+                            'type'     => 'node',
+                            'settings' => [
+                                'name' => 'number_node_1',
+                            ],
+                        ],
+                        'socket_2' => [
+                            'type'     => 'node',
+                            'settings' => [
+                                'name'  => 'additional_node_1',
+                                'input' => [
+                                    [
+                                        'variable' => 'a',
+                                        'path'     => ['value'],
+                                    ],
+                                    [
+                                        'node' => 'number_node_id',
+                                        'path' => ['value'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'socket_3' => [
+                            'type'     => 'node',
+                            'settings' => [
+                                'node'  => 'output',
+                                'input' => [
+                                    [
+                                        'node' => 'additional_node_1',
+                                        'path' => ['value'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'map'     => [
+                        'socket_1' => [
+                            'condition' => true,
+                            'id'        => 'socket_2',
+                        ],
+                        'socket_2' => [
+                            'condition' => true,
+                            'id'        => 'socket_3',
+                        ],
+                    ],
+                    'nodes'   => [
+                        'number_node_1'     => [
+                            'option'  => [
+                                'value' => 3,
+                            ],
+                            'pattern' => 'basic_node_number',
+                        ],
+                        'additional_node_1' => [
+                            'option'  => [],
+                            'pattern' => 'basic_node_addition',
+                        ],
+                    ],
+                ]
+            )
+        );
 
         $compiler->compile($settings);
 

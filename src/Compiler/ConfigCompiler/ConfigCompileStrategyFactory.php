@@ -10,20 +10,20 @@ use RuntimeException;
 class ConfigCompileStrategyFactory
 {
     /** @param ConfigCompileStrategyInterface[] $strategies */
+    private array $strategies = [];
+
+    /** @param ConfigCompileStrategyInterface[] $strategies */
     public function __construct(
         #[ServicesIterator(instanceOf: ConfigCompileStrategyInterface::class)]
-        private iterable $strategies
+        iterable $strategies
     ) {
+        foreach ($strategies as $strategy) {
+            $this->strategies[$strategy->getConfigName()] = $strategy;
+        }
     }
 
     public function create(string $name): ConfigCompileStrategyInterface
     {
-        foreach ($this->strategies as $strategy) {
-            if ($strategy->getConfigName() === $name) {
-                return $strategy;
-            }
-        }
-
-        throw new RuntimeException("Strategy $name not found");
+        return $this->strategies[$name] ?? throw new RuntimeException("Strategy $name not found");
     }
 }

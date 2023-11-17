@@ -3,7 +3,9 @@
 namespace Awwar\MasterpiecePhp\Compiler;
 
 use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompiler;
+use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\AppAddon;
 use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\ConfigCompiler;
+use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\ConfigCompileStrategyFactory;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 use Throwable;
@@ -14,7 +16,7 @@ class Compiler
     public function __construct(
         private Filesystem $filesystem,
         private AddOnCompiler $addOnCompiler,
-        private ConfigCompiler $configCompiler
+        private ConfigCompileStrategyFactory $factory
     ) {
     }
 
@@ -31,32 +33,50 @@ class Compiler
 
         $dirname = realpath($path);
 
-        $classVisitor = new ClassVisitor();
-
-        foreach ($compileContext->getAddOns() as $addOn) {
-            $this->addOnCompiler->compile($addOn, $classVisitor);
-        }
+        $configVisitor = new ConfigVisitor();
 
         foreach ($compileContext->getConfigs() as $config) {
-            $this->configCompiler->compile($config, $classVisitor);
+            $strategy = $this->factory->create($config->getType());
+
+            $strategy->prefetch($config->getParams(), $configVisitor);
         }
 
-        foreach ($classVisitor->getClasses() as $namespace => $classes) {
-            foreach ($classes as $classname => $executable) {
-                $fullName = sprintf('%s_%s', $namespace, $classname);
-                $filepath = sprintf('%s/%s.php', rtrim($dirname, '\/'), $fullName);
+        // ToDo: Need to fold this piece of code in separate class
+        // May be as AppAddon
+        $classVisitor = new ClassVisitor();
 
-                $class = <<<PHP
+        foreach ($compileContext->getConfigs() as $config) {
+            $strategy = $this->factory->create($config->getType());
+
+            // ToDo: it`s not work now
+            //  if ($strategy->isDemand($config->getName(), $configVisitor) === false) {
+            //      continue;
+            // }
+
+            $strategy->compile($config->getParams(), $classVisitor);
+        }
+        //ToDo: end
+
+        foreach ($compileContext->getAddOns() as $addOn) {
+            $this->addOnCompiler->compile($addOn, $configVisitor, $classVisitor);
+        }
+
+        foreach ($classVisitor->getClasses() as $classname => $executable) {
+            $filepath = sprintf('%s/%s.php', rtrim($dirname, '\/'), $classname);
+
+            //ToDo: implement code generator like:
+            // $codeGen->createClass('className')->withFunction('foo', 'a')->willReturn('int')->end()->end()
+            // well maybe a little prettier
+            $class = <<<PHP
 <?php
 namespace Awwar\MasterpiecePhp\Nodes;
-class $fullName
+class $classname
 {
 $executable
 }
 PHP;
 
-                $this->filesystem->createFile($filepath, $class);
-            }
+            $this->filesystem->createFile($filepath, $class);
         }
     }
 }

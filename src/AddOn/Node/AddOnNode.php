@@ -4,6 +4,7 @@ namespace Awwar\MasterpiecePhp\AddOn\Node;
 
 class AddOnNode
 {
+    //ToDo: output set
     public function __construct(private string $name, private NodeInputSet $input, private string $body)
     {
     }
