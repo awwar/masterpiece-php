@@ -3,7 +3,7 @@
 namespace Awwar\MasterpiecePhp\Compiler\AddOnCompiler;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
+use Awwar\MasterpiecePhp\CodeGenerator\ClassGenerator;
 use Awwar\MasterpiecePhp\Compiler\ClassVisitorInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
@@ -11,14 +11,10 @@ use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 #[ForDependencyInjection]
 class AddOnCompiler
 {
-    public function prefetch(AddOnInterface $addOn, ConfigVisitorInterface $configVisitor)
-    {
-    }
-
     public function compile(
         AddOnInterface $addOn,
         ConfigVisitorInterface $configVisitor,
-        ClassVisitorInterface $classCreator
+        ClassVisitorInterface $classVisitor
     ): void {
         $visitor = new AddOnCompileVisitor();
 
@@ -33,39 +29,27 @@ class AddOnCompiler
                 continue;
             }
 
-            // ToDo: code gen - we really need it
-            $arguments = $node
-                ->getInput()
-                ->reduce(
-                    function (NodeInput $input, string $argString) {
-                        $argumentDeclaration = sprintf('%s $%s', $input->getType(), $input->getName());
+            $classGenerator = new ClassGenerator(name: $fullName);
+            $classGenerator->setNamespace('Awwar\MasterpiecePhp\Nodes');
 
-                        if ($argString === "") {
-                            return $argumentDeclaration;
-                        }
-
-                        return "$argString, $argumentDeclaration";
-                    },
-                    ""
-                );
-
-            $output = $node->getOutput()->getType();
+            $outputType = $node->getOutput()->getType();
 
             $options = $configVisitor->getNodeSettings($fullName);
 
             foreach ($options as $alias => $option) {
                 $body = $node->getBody($option);
 
-                $code = <<<PHP
-public static function execute($arguments): $output
-{
-    $body
-}
-PHP;
-                $nodeFullName = sprintf('%s_%s', $fullName, $alias);
+                $method = $classGenerator
+                    ->addMethod('execute_for_alias_' . $alias)
+                    ->setReturnType($outputType)
+                    ->setBody($body);
 
-                $classCreator->createClass($nodeFullName, $code);
+                foreach ($node->getInput() as $input) {
+                    $method->addArgument(name: $input->getName(), type: $input->getType());
+                }
             }
+
+            $classVisitor->createClass($fullName, $classGenerator);
         }
     }
 }

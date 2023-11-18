@@ -3,8 +3,9 @@
 namespace Awwar\MasterpiecePhp\AddOn\Node;
 
 use RuntimeException;
+use Traversable;
 
-class NodeInputSet
+class NodeInputSet implements \IteratorAggregate
 {
     private array $list = [];
 
@@ -26,14 +27,10 @@ class NodeInputSet
         return $this;
     }
 
-    public function reduce(callable $reducer, mixed $startValue = null): mixed
+    public function getIterator(): Traversable
     {
-        $result = $startValue;
-
-        foreach ($this->list as $input) {
-            $result = call_user_func($reducer, $input, $result);
+        foreach ($this->list as $name => $input) {
+            yield $name => $input;
         }
-
-        return $result;
     }
 }

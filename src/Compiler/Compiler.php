@@ -3,6 +3,7 @@
 namespace Awwar\MasterpiecePhp\Compiler;
 
 use Awwar\MasterpiecePhp\AddOns\App\AppAddon;
+use Awwar\MasterpiecePhp\CodeGenerator\ClassGenerator;
 use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompiler;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\AppAddonVisitor;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
@@ -62,25 +63,10 @@ class Compiler
             $this->addOnCompiler->compile($addOn, $configVisitor, $classVisitor);
         }
 
-        foreach ($classVisitor->getClasses() as $classname => $executable) {
-            $filepath = sprintf('%s/%s.php', rtrim($dirname, '\/'), $classname);
+        foreach ($classVisitor->getClasses() as $className => $generator) {
+            $filepath = sprintf('%s/%s.php', rtrim($dirname, '\/'), $className);
 
-            //ToDo: implement code generator like:
-            // $codeGen->createClass('className')
-            //      ->withFunction('add')
-            //          ->willArguments('a', 'b')
-            //          ->willReturn('int')
-            //      ->end()
-            // ->end();
-            // well maybe a little prettier
-            $class = <<<PHP
-<?php
-namespace Awwar\MasterpiecePhp\Nodes;
-class $classname
-{
-$executable
-}
-PHP;
+            $class = $generator->generate();
 
             $this->filesystem->createFile($filepath, $class);
         }

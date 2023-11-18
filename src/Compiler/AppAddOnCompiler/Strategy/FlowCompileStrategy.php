@@ -25,9 +25,4 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
     public function compile(array $params, AddOnCompileVisitorInterface $visitor): void
     {
     }
-
-    public function isDemand(string $name, ConfigVisitorInterface $visitor): bool
-    {
-        return $visitor->isNodeDemand($name);
-    }
 }
