@@ -2,10 +2,11 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Node;
 
+use IteratorAggregate;
 use RuntimeException;
 use Traversable;
 
-class NodeInputSet implements \IteratorAggregate
+class NodeInputSet implements IteratorAggregate
 {
     private array $list = [];
 

@@ -37,6 +37,7 @@ class AddOnCompiler
             $options = $configVisitor->getNodeSettings($fullName);
 
             foreach ($options as $alias => $option) {
+                //ToDo: may be pass classGenerator to getBody?
                 $body = $node->getBody($option);
 
                 $method = $classGenerator
@@ -49,7 +50,7 @@ class AddOnCompiler
                 }
             }
 
-            $classVisitor->createClass($fullName, $classGenerator);
+            $classVisitor->createClass($fullName, $classGenerator->generate());
         }
     }
 }

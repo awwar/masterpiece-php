@@ -33,7 +33,7 @@ class MethodGenerator implements MethodGeneratorInterface
         return $this;
     }
 
-    public function end(): ClassGeneratorInterface
+    public function getClass(): ClassGeneratorInterface
     {
         return $this->classGenerator;
     }

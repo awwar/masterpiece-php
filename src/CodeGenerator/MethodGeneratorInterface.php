@@ -10,5 +10,5 @@ interface MethodGeneratorInterface
 
     public function setBody(string $body): MethodGeneratorInterface;
 
-    public function end(): ClassGeneratorInterface;
+    public function getClass(): ClassGeneratorInterface;
 }

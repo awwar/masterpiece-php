@@ -2,19 +2,17 @@
 
 namespace Awwar\MasterpiecePhp\Compiler;
 
-use Awwar\MasterpiecePhp\CodeGenerator\ClassGeneratorInterface;
-
 class ClassVisitor implements ClassVisitorInterface
 {
     private array $classes = [];
 
-    public function createClass(string $className, ClassGeneratorInterface $classGenerator): void
+    public function createClass(string $className, string $body): void
     {
-        $this->classes[$className] = $classGenerator;
+        $this->classes[$className] = $body;
     }
 
     /**
-     * @return ClassGeneratorInterface[]
+     * @return array<string, string>
      */
     public function getClasses(): array
     {

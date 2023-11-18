@@ -25,7 +25,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
-            body: fn() => 'return $a + $b;'
+            body: fn () => 'return $a + $b;'
         );
         $addOnCompileVisitor->setNode($addition);
         $subtraction = new AddOnNode(
@@ -34,7 +34,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
-            body: fn() => 'return $a - $b;'
+            body: fn () => 'return $a - $b;'
         );
         $addOnCompileVisitor->setNode($subtraction);
         $division = new AddOnNode(
@@ -43,7 +43,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
-            body: fn() => 'return $a / $b;'
+            body: fn () => 'return $a / $b;'
         );
         $addOnCompileVisitor->setNode($division);
         $multiplication = new AddOnNode(
@@ -52,7 +52,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
-            body: fn() => 'return $a * $b;'
+            body: fn () => 'return $a * $b;'
         );
         $addOnCompileVisitor->setNode($multiplication);
         $power = new AddOnNode(
@@ -61,7 +61,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'num', type: 'int'))
                 ->push(new NodeInput(name: 'exponent', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
-            body: fn() => 'return pow($num, $exponent);'
+            body: fn () => 'return pow($num, $exponent);'
         );
         $addOnCompileVisitor->setNode($power);
 

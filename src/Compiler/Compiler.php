@@ -3,7 +3,6 @@
 namespace Awwar\MasterpiecePhp\Compiler;
 
 use Awwar\MasterpiecePhp\AddOns\App\AppAddon;
-use Awwar\MasterpiecePhp\CodeGenerator\ClassGenerator;
 use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompiler;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\AppAddonVisitor;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
@@ -63,12 +62,10 @@ class Compiler
             $this->addOnCompiler->compile($addOn, $configVisitor, $classVisitor);
         }
 
-        foreach ($classVisitor->getClasses() as $className => $generator) {
+        foreach ($classVisitor->getClasses() as $className => $content) {
             $filepath = sprintf('%s/%s.php', rtrim($dirname, '\/'), $className);
 
-            $class = $generator->generate();
-
-            $this->filesystem->createFile($filepath, $class);
+            $this->filesystem->createFile($filepath, $content);
         }
     }
 }
