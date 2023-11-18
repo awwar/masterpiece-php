@@ -37,22 +37,35 @@ class AddOnCompiler
             $arguments = $node
                 ->getInput()
                 ->reduce(
-                    fn (NodeInput $input, string $argString) => $argString === ""
-                        ? '$' . $input->getName()
-                        : "$argString, \${$input->getName()}",
+                    function (NodeInput $input, string $argString) {
+                        $argumentDeclaration = sprintf('%s $%s', $input->getType(), $input->getName());
+
+                        if ($argString === "") {
+                            return $argumentDeclaration;
+                        }
+
+                        return "$argString, $argumentDeclaration";
+                    },
                     ""
                 );
 
-            $body = $node->getBody();
+            $output = $node->getOutput()->getType();
 
-            $code = <<<PHP
-public static function execute($arguments): mixed
+            $options = $configVisitor->getNodeSettings($fullName);
+
+            foreach ($options as $alias => $option) {
+                $body = $node->getBody($option);
+
+                $code = <<<PHP
+public static function execute($arguments): $output
 {
     $body
 }
 PHP;
+                $nodeFullName = sprintf('%s_%s', $fullName, $alias);
 
-            $classCreator->createClass($fullName, $code);
+                $classCreator->createClass($nodeFullName, $code);
+            }
         }
     }
 }

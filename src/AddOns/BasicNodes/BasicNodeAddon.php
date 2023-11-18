@@ -7,6 +7,7 @@ use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
 use Awwar\MasterpiecePhp\AddOn\Node\AddOnNode;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
 use Awwar\MasterpiecePhp\AddOn\Structure\AddOnStructure;
 
 class BasicNodeAddon implements AddOnInterface
@@ -23,7 +24,8 @@ class BasicNodeAddon implements AddOnInterface
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
-            body: 'return $a + $b;'
+            output: new NodeOutput(name: 'value', type: 'int'),
+            body: fn() => 'return $a + $b;'
         );
         $addOnCompileVisitor->setNode($addition);
         $subtraction = new AddOnNode(
@@ -31,7 +33,8 @@ class BasicNodeAddon implements AddOnInterface
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
-            body: 'return $a - $b;'
+            output: new NodeOutput(name: 'value', type: 'int'),
+            body: fn() => 'return $a - $b;'
         );
         $addOnCompileVisitor->setNode($subtraction);
         $division = new AddOnNode(
@@ -39,7 +42,8 @@ class BasicNodeAddon implements AddOnInterface
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
-            body: 'return $a / $b;'
+            output: new NodeOutput(name: 'value', type: 'int'),
+            body: fn() => 'return $a / $b;'
         );
         $addOnCompileVisitor->setNode($division);
         $multiplication = new AddOnNode(
@@ -47,7 +51,8 @@ class BasicNodeAddon implements AddOnInterface
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: 'int'))
                 ->push(new NodeInput(name: 'b', type: 'int')),
-            body: 'return $a * $b;'
+            output: new NodeOutput(name: 'value', type: 'int'),
+            body: fn() => 'return $a * $b;'
         );
         $addOnCompileVisitor->setNode($multiplication);
         $power = new AddOnNode(
@@ -55,7 +60,8 @@ class BasicNodeAddon implements AddOnInterface
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'num', type: 'int'))
                 ->push(new NodeInput(name: 'exponent', type: 'int')),
-            body: 'return pow($num, $exponent);'
+            output: new NodeOutput(name: 'value', type: 'int'),
+            body: fn() => 'return pow($num, $exponent);'
         );
         $addOnCompileVisitor->setNode($power);
 
@@ -63,7 +69,9 @@ class BasicNodeAddon implements AddOnInterface
         $number = new AddOnNode(
             name: 'number',
             input: NodeInputSet::create(),
-            body: 'return {{value}};'
+            output: new NodeOutput(name: 'value', type: 'int'),
+            body: fn (array $options) => sprintf('return %d;', $options['value']),
+            options: []
         );
         $addOnCompileVisitor->setNode($number);
 

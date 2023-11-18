@@ -1,9 +1,9 @@
 <?php
 
-namespace Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy;
+namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy;
 
-use Awwar\MasterpiecePhp\Compiler\ClassVisitorInterface;
-use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\ConfigCompileStrategyInterface;
+use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
@@ -22,9 +22,8 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
         }
     }
 
-    public function compile(array $params, ClassVisitorInterface $visitor): string
+    public function compile(array $params, AddOnCompileVisitorInterface $visitor): void
     {
-        return ""; //ToDo: flow compile logic
     }
 
     public function isDemand(string $name, ConfigVisitorInterface $visitor): bool

@@ -1,8 +1,8 @@
 <?php
 
-namespace Awwar\MasterpiecePhp\Compiler\ConfigCompiler;
+namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler;
 
-use Awwar\MasterpiecePhp\Compiler\ClassVisitorInterface;
+use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
@@ -13,7 +13,5 @@ interface ConfigCompileStrategyInterface
 
     public function prefetch(array $params, ConfigVisitorInterface $visitor): void;
 
-    public function compile(array $params, ClassVisitorInterface $visitor): string;
-
-    public function isDemand(string $name, ConfigVisitorInterface $visitor): bool;
+    public function compile(array $params, AddOnCompileVisitorInterface $visitor): void;
 }

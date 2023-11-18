@@ -63,5 +63,6 @@ params:
             option: { }
             pattern: addition
         number_node_1:
-            option: { }
+            option:
+                value: 500
             pattern: number_node

@@ -1,6 +1,6 @@
 <?php
 
-namespace Awwar\MasterpiecePhp\Compiler\ConfigCompiler;
+namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler;
 
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 use Awwar\MasterpiecePhp\Container\Attributes\ServicesIterator;

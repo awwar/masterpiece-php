@@ -1,11 +1,11 @@
 <?php
 
-namespace Awwar\MasterpiecePhp\Tests\Compiler\ConfigCompiler;
+namespace Awwar\MasterpiecePhp\Tests\Compiler\AppAddOnCompiler;
 
-use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy\ContractCompileStrategy;
-use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy\EndpointCompileStrategy;
-use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\Strategy\FlowCompileStrategy;
-use Awwar\MasterpiecePhp\Compiler\ConfigCompiler\ConfigCompileStrategyFactory;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\ContractCompileStrategy;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\EndpointCompileStrategy;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\FlowCompileStrategy;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
 
 class StrategyFactoryTest extends CaseWithContainer
