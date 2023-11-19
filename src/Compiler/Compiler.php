@@ -22,24 +22,13 @@ class Compiler
 
     public function compile(CompileContext $compileContext): void
     {
-        $path = $compileContext->getGenerationPath();
-
-        try {
-            $this->filesystem->recursiveRemoveDirectory($path);
-        } catch (Throwable) {
-        }
-
-        $this->filesystem->createDirectory($path);
-
-        $dirname = realpath($path);
-
         $configVisitor = new ConfigVisitor();
 
         foreach ($compileContext->getConfigs() as $config) {
             $this
                 ->factory
                 ->create($config->getType())
-                ->prefetch($config->getParams(), $configVisitor);
+                ->prefetch($config->getName(), $config->getParams(), $configVisitor);
         }
 
         // ToDo: Need to fold this piece of code in separate class
@@ -50,7 +39,7 @@ class Compiler
             $this
                 ->factory
                 ->create($config->getType())
-                ->compile($config->getParams(), $appAddonVisitor);
+                ->compile($config->getName(), $config->getParams(), $appAddonVisitor);
         }
 
         $compileContext->addAddOn(new AppAddon($appAddonVisitor));
@@ -62,8 +51,12 @@ class Compiler
             $this->addOnCompiler->compile($addOn, $configVisitor, $classVisitor);
         }
 
+        $path = $compileContext->getGenerationPath();
+
+        $this->filesystem->createDirectory($path);
+
         foreach ($classVisitor->getClasses() as $className => $content) {
-            $filepath = sprintf('%s/%s.php', rtrim($dirname, '\/'), $className);
+            $filepath = sprintf('%s/%s.php', $path, $className);
 
             $this->filesystem->createFile($filepath, $content);
         }

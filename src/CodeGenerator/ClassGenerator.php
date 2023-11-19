@@ -5,12 +5,20 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 class ClassGenerator implements ClassGeneratorInterface
 {
     private string $namespace = "";
+    private array $comments = [];
     private array $using = [];
     /** @var MethodGenerator[] $methods */
     private array $methods = [];
 
     public function __construct(private string $name)
     {
+    }
+
+    public function addComment(string $comment): ClassGeneratorInterface
+    {
+        $this->comments[] = $comment;
+
+        return $this;
     }
 
     public function addMethod(string $name): MethodGeneratorInterface
@@ -41,7 +49,7 @@ class ClassGenerator implements ClassGeneratorInterface
         $methods = "";
 
         foreach ($this->methods as $method) {
-            $methods .= $method->generate() . PHP_EOL;
+            $methods .= PHP_EOL . $method->generate() ;
         }
 
         $usings = "";
@@ -58,6 +66,8 @@ class ClassGenerator implements ClassGeneratorInterface
             }
         }
 
+        $comments = empty($this->comments) ? '' : '//' . join(PHP_EOL . '//', $this->comments);
+
         $classname = $this->name;
         $namespace = $this->namespace;
 
@@ -65,9 +75,9 @@ class ClassGenerator implements ClassGeneratorInterface
 <?php
 namespace $namespace;
 $usings
+$comments
 class $classname
-{
-$methods
+{{$methods}
 }
 PHP;
     }

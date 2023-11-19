@@ -5,11 +5,19 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 class MethodGenerator implements MethodGeneratorInterface
 {
     private array $arguments = [];
+    private array $comments = [];
     private string $returnType = 'mixed';
     private string $body = '';
 
     public function __construct(private string $name, private ClassGeneratorInterface $classGenerator)
     {
+    }
+
+    public function addComment(string $comment): MethodGeneratorInterface
+    {
+        $this->comments[] = $comment;
+
+        return $this;
     }
 
     public function addArgument(string $name, string $type): MethodGeneratorInterface
@@ -51,12 +59,14 @@ class MethodGenerator implements MethodGeneratorInterface
                 $arguments = "$arguments, $argumentDeclaration";
             }
         }
+        $comments = empty($this->comments) ? '' : '//' . join(PHP_EOL . '//', $this->comments);
 
         $body = $this->body;
         $returnType = $this->returnType;
         $name = $this->name;
 
         return <<<PHP
+$comments
 public static function $name($arguments): $returnType
 {
     $body

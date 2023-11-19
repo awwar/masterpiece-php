@@ -4,6 +4,8 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 
 interface ClassGeneratorInterface
 {
+    public function addComment(string $comment): ClassGeneratorInterface;
+
     public function setNamespace(string $name): ClassGeneratorInterface;
 
     public function addUsing(string $name, ?string $alias = null): ClassGeneratorInterface;

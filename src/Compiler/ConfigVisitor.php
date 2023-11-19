@@ -2,31 +2,35 @@
 
 namespace Awwar\MasterpiecePhp\Compiler;
 
-use RuntimeException;
-
 class ConfigVisitor implements ConfigVisitorInterface
 {
     private array $nodesSettings = [];
-    private array $nodesPatterns = [];
-    private array $patternsNodes = [];
 
-    public function persistNodePatternOption(string $nodeName, string $pattern, array $settings): void
-    {
-        $this->nodesSettings[$nodeName] = $settings;
-        $this->nodesPatterns[$nodeName] = $pattern;
-        $this->patternsNodes[$pattern][] = $nodeName;
+    public function persistNodePatternOption(
+        string $flowName,
+        string $nodeAlias,
+        string $nodeAddon,
+        string $nodePattern,
+        array $nodeOption
+    ): void {
+        $this->nodesSettings[$nodeAddon][$nodePattern][$flowName][$nodeAlias] = $nodeOption;
     }
 
-    public function isNodeDemand(string $pattern): bool
+    public function isNodeDemand(string $nodeAddon, string $nodePattern): bool
     {
-        return isset($this->patternsNodes[$pattern]);
+        return isset($this->nodesSettings[$nodeAddon][$nodePattern]);
     }
 
-    public function getNodeSettings(string $pattern): iterable
+    public function getNodeOptions(string $nodeAddon, string $nodePattern): iterable
     {
-        foreach ($this->patternsNodes[$pattern] as $nodeName) {
-            yield $nodeName => $this->nodesSettings[$nodeName]
-                ?? throw new RuntimeException(sprintf('No settings set for %s node', $nodeName));
+        foreach ($this->nodesSettings[$nodeAddon][$nodePattern] as $flowName => $aliasToSettings) {
+            foreach ($aliasToSettings as $nodeAlias => $nodeSettings) {
+                yield [
+                    'flow_name'  => $flowName,
+                    'node_alias' => $nodeAlias,
+                    'settings'   => $nodeSettings,
+                ];
+            }
         }
     }
 }

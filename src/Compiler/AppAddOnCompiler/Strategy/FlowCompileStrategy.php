@@ -15,14 +15,22 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
         return 'flow';
     }
 
-    public function prefetch(array $params, ConfigVisitorInterface $visitor): void
+    public function prefetch(string $name, array $params, ConfigVisitorInterface $visitor): void
     {
-        foreach ($params['nodes'] as $nodeName => $nodeSettings) {
-            $visitor->persistNodePatternOption($nodeName, $nodeSettings['pattern'], $nodeSettings['option']);
+        foreach ($params['nodes'] as $alias => $nodeSettings) {
+            $visitor->persistNodePatternOption(
+                flowName: $name,
+                nodeAlias: $alias,
+                nodeAddon: $nodeSettings['node']['addon'],
+                nodePattern: $nodeSettings['node']['pattern'],
+                nodeOption: $nodeSettings['option']
+            );
         }
     }
 
-    public function compile(array $params, AddOnCompileVisitorInterface $visitor): void
+    public function compile(string $name, array $params, AddOnCompileVisitorInterface $visitor): void
     {
+//        $node = new AddOnNode()
+//        $visitor->setNode();
     }
 }

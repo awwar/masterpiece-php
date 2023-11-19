@@ -11,7 +11,7 @@ interface ConfigCompileStrategyInterface
 {
     public function getConfigName(): string;
 
-    public function prefetch(array $params, ConfigVisitorInterface $visitor): void;
+    public function prefetch(string $name, array $params, ConfigVisitorInterface $visitor): void;
 
-    public function compile(array $params, AddOnCompileVisitorInterface $visitor): void;
+    public function compile(string $name, array $params, AddOnCompileVisitorInterface $visitor): void;
 }

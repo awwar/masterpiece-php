@@ -23,25 +23,31 @@ class AddOnCompiler
         $addOn->compile($visitor);
 
         foreach ($visitor->getNodes() as $node) {
-            $fullName = sprintf('%s_%s', $addonName, $node->getName());
-
-            if ($configVisitor->isNodeDemand($fullName) === false) {
+            if ($configVisitor->isNodeDemand($addonName, $node->getName()) === false) {
                 continue;
             }
 
-            $classGenerator = new ClassGenerator(name: $fullName);
-            $classGenerator->setNamespace('Awwar\MasterpiecePhp\Nodes');
+            $nodeFullName = sprintf('%s_%s', $addonName, $node->getName());
+
+            $classGenerator = new ClassGenerator(name: $nodeFullName);
+            $classGenerator
+                ->setNamespace('Awwar\MasterpiecePhp\Nodes')
+                ->addComment('Addon: ' . $addonName)
+                ->addComment('Node: ' . $node->getName());
 
             $outputType = $node->getOutput()->getType();
 
-            $options = $configVisitor->getNodeSettings($fullName);
+            $options = $configVisitor->getNodeOptions($addonName, $node->getName());
 
-            foreach ($options as $alias => $option) {
-                //ToDo: may be pass classGenerator to getBody?
-                $body = $node->getBody($option);
+            foreach ($options as $option) {
+                $body = $node->getBody($option['settings']);
+
+                $methodName = sha1(sprintf('%s_%s', $option['flow_name'], $option['node_alias']));
 
                 $method = $classGenerator
-                    ->addMethod('execute_for_alias_' . $alias)
+                    ->addMethod('execute_' . $methodName)
+                    ->addComment('Flow: ' . $option['flow_name'])
+                    ->addComment('Alias: ' . $option['node_alias'])
                     ->setReturnType($outputType)
                     ->setBody($body);
 
@@ -50,7 +56,7 @@ class AddOnCompiler
                 }
             }
 
-            $classVisitor->createClass($fullName, $classGenerator->generate());
+            $classVisitor->createClass($nodeFullName, $classGenerator->generate());
         }
     }
 }

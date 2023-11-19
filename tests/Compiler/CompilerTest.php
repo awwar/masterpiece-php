@@ -56,60 +56,61 @@ class CompilerTest extends CaseWithContainer
                     ],
                     'sockets' => [
                         'socket_1' => [
-                            'type'     => 'node',
-                            'settings' => [
-                                'name' => 'number_node_1',
-                            ],
+                            'node_alias' => 'number_node_1',
                         ],
                         'socket_2' => [
-                            'type'     => 'node',
-                            'settings' => [
-                                'name'  => 'additional_node_1',
-                                'input' => [
-                                    [
-                                        'variable' => 'a',
-                                        'path'     => ['value'],
-                                    ],
-                                    [
-                                        'node' => 'number_node_id',
-                                        'path' => ['value'],
-                                    ],
+                            'node_alias' => 'additional_node_1',
+                            'input'      => [
+                                [
+                                    'variable' => 'a',
+                                    'path'     => ['value'],
+                                ],
+                                [
+                                    'node_alias' => 'socket_1',
+                                    'path'       => ['value'],
                                 ],
                             ],
                         ],
                         'socket_3' => [
-                            'type'     => 'node',
-                            'settings' => [
-                                'node'  => 'output',
-                                'input' => [
-                                    [
-                                        'node' => 'additional_node_1',
-                                        'path' => ['value'],
-                                    ],
+                            'node_alias'  => 'output',
+                            'input' => [
+                                [
+                                    'node_alias' => 'socket_2',
+                                    'path'       => ['value'],
                                 ],
                             ],
                         ],
                     ],
                     'map'     => [
                         'socket_1' => [
-                            'condition' => true,
-                            'id'        => 'socket_2',
+                            [
+                                'condition' => true,
+                                'socket'    => 'socket_2',
+                            ],
                         ],
                         'socket_2' => [
-                            'condition' => true,
-                            'id'        => 'socket_3',
+                            [
+                                'condition' => true,
+                                'socket'    => 'socket_3',
+                            ],
                         ],
                     ],
                     'nodes'   => [
                         'number_node_1'     => [
-                            'option'  => [
+                            'option' => [
                                 'value' => 3,
                             ],
-                            'pattern' => 'basic_node_number',
+                            'node'   => [
+                                'addon'   => 'basic_node',
+                                'pattern' => 'number',
+                            ],
                         ],
                         'additional_node_1' => [
-                            'option'  => [],
-                            'pattern' => 'basic_node_addition',
+                            'option' => [],
+                            'node'   => [
+                                'addon'   => 'basic_node',
+                                'pattern' => 'addition',
+                            ],
                         ],
                     ],
                 ]
@@ -118,9 +119,9 @@ class CompilerTest extends CaseWithContainer
 
         $compiler->compile($settings);
 
-        self::assertDirectoryExists($path);
+        self::assertDirectoryExists($settings->getGenerationPath());
 
-        include_once $path . '/basic_node_addition.php';
+        include_once $settings->getGenerationPath() . '/basic_node_addition.php';
 
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_addition::class));
     }
