@@ -37,6 +37,17 @@ class CompilerTest extends CaseWithContainer
 
         $settings->addAddOn(new BasicNodeAddon());
 
+
+        $settings->addConfig(
+            new Config(
+                name: 'base_endpoint',
+                type: 'endpoint',
+                params: [
+                    'flow' => 'my_test_flow'
+                ]
+            )
+        );
+
         $settings->addConfig(
             new Config(
                 name: 'my_test_flow',
@@ -63,11 +74,9 @@ class CompilerTest extends CaseWithContainer
                             'input'      => [
                                 [
                                     'variable' => 'a',
-                                    'path'     => ['value'],
                                 ],
                                 [
                                     'node_alias' => 'socket_1',
-                                    'path'       => ['value'],
                                 ],
                             ],
                         ],
@@ -76,7 +85,6 @@ class CompilerTest extends CaseWithContainer
                             'input' => [
                                 [
                                     'node_alias' => 'socket_2',
-                                    'path'       => ['value'],
                                 ],
                             ],
                         ],
@@ -121,9 +129,17 @@ class CompilerTest extends CaseWithContainer
 
         self::assertDirectoryExists($settings->getGenerationPath());
 
+        include_once $settings->getGenerationPath() . '/app_my_test_flow.php';
         include_once $settings->getGenerationPath() . '/basic_node_addition.php';
+        include_once $settings->getGenerationPath() . '/basic_node_number.php';
 
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\app_my_test_flow::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_addition::class));
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_number::class));
+
+        $result = \Awwar\MasterpiecePhp\Nodes\app_my_test_flow::execute_d5841bc1419883204f3eb470796b977cf1e0dd65(10);
+
+        self::assertSame(13, $result);
     }
 }
 

@@ -17,6 +17,13 @@ class EndpointCompileStrategy implements ConfigCompileStrategyInterface
 
     public function prefetch(string $name, array $params, ConfigVisitorInterface $visitor): void
     {
+        $visitor->persistNodePatternOption(
+            flowName: $params['flow'],
+            nodeAlias: $params['flow'],
+            nodeAddon: 'app',
+            nodePattern: $params['flow'],
+            nodeOption: []
+        );
     }
 
     public function compile(string $name, array $params, AddOnCompileVisitorInterface $visitor): void
