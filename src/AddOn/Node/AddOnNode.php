@@ -6,7 +6,6 @@ use Closure;
 
 class AddOnNode
 {
-    //ToDo: output set
     public function __construct(
         private string $name,
         private NodeInputSet $input,
@@ -36,8 +35,13 @@ class AddOnNode
         return $this->name;
     }
 
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
     public function isOptionsRequired(): bool
     {
-        return false === empty($options);
+        return false === empty($this->options);
     }
 }

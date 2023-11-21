@@ -8,7 +8,6 @@ use Awwar\MasterpiecePhp\AddOn\Node\AddOnNode;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
-use Awwar\MasterpiecePhp\AddOn\Structure\AddOnStructure;
 
 class BasicNodeAddon implements AddOnInterface
 {
@@ -74,13 +73,13 @@ class BasicNodeAddon implements AddOnInterface
             options: []
         );
         $addOnCompileVisitor->setNode($number);
-
-        $if = new AddOnStructure(
-            name: 'if',
-            body: 'if (true) {
-            
-            }'
-        );
-        $addOnCompileVisitor->setStructure($if);
+//
+//        $if = new AddOnStructure(
+//            name: 'if',
+//            body: 'if (true) {
+//
+//            }'
+//        );
+//        $addOnCompileVisitor->setStructure($if);
     }
 }

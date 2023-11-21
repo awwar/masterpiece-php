@@ -2,6 +2,9 @@
 
 namespace Awwar\MasterpiecePhp\CodeGenerator;
 
+use Awwar\MasterpiecePhp\CodeGenerator\Utils\CommentStringify;
+use Awwar\MasterpiecePhp\CodeGenerator\Utils\UsingStringify;
+
 class ClassGenerator implements ClassGeneratorInterface
 {
     private string $namespace = "";
@@ -46,39 +49,32 @@ class ClassGenerator implements ClassGeneratorInterface
 
     public function generate(): string
     {
-        $methods = "";
+        $methods = "\r";
 
         foreach ($this->methods as $method) {
-            $methods .= PHP_EOL . $method->generate() ;
+            $methods .= PHP_EOL . $method->generate();
         }
 
-        $usings = "";
+        // ToDo: code beautify option
+        $methods = implode(PHP_EOL . "\t", explode(PHP_EOL, $methods));
 
-        foreach ($this->using as $namespace => $aliases) {
-            foreach ($aliases as $alias) {
-                $usings .= 'use ' . $namespace;
+        $using = UsingStringify::stringify($this->using);
 
-                if ($alias != null) {
-                    $usings .= 'as ' . $alias;
-                }
-
-                $usings .= ';' . PHP_EOL;
-            }
-        }
-
-        $comments = empty($this->comments) ? '' : '//' . join(PHP_EOL . '//', $this->comments);
+        $comments = CommentStringify::stringify($this->comments);
 
         $classname = $this->name;
         $namespace = $this->namespace;
 
         return <<<PHP
 <?php
+
 namespace $namespace;
-$usings
+$using
 $comments
 class $classname
 {{$methods}
 }
+
 PHP;
     }
 }

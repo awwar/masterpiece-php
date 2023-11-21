@@ -2,6 +2,9 @@
 
 namespace Awwar\MasterpiecePhp\CodeGenerator;
 
+use Awwar\MasterpiecePhp\CodeGenerator\Utils\ArgumentsStringify;
+use Awwar\MasterpiecePhp\CodeGenerator\Utils\CommentStringify;
+
 class MethodGenerator implements MethodGeneratorInterface
 {
     private array $arguments = [];
@@ -48,20 +51,9 @@ class MethodGenerator implements MethodGeneratorInterface
 
     public function generate(): string
     {
-        $arguments = '';
-
-        foreach ($this->arguments as $argumentName => $argumentType) {
-            $argumentDeclaration = "$argumentType \$$argumentName";
-
-            if ($arguments === '') {
-                $arguments = $argumentDeclaration;
-            } else {
-                $arguments = "$arguments, $argumentDeclaration";
-            }
-        }
-        $comments = empty($this->comments) ? '' : '//' . join(PHP_EOL . '//', $this->comments);
-
-        $body = $this->body;
+        $arguments = ArgumentsStringify::stringify($this->arguments);
+        $comments = CommentStringify::stringify($this->comments);
+        $body = trim($this->body);
         $returnType = $this->returnType;
         $name = $this->name;
 
