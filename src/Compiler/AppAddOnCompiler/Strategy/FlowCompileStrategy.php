@@ -7,6 +7,7 @@ use Awwar\MasterpiecePhp\AddOn\Node\AddOnNode;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
+use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
@@ -51,14 +52,21 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             name: $name,
             input: $input,
             output: $output,
-            body: fn () => $this->getFunctionBody($name, $params),
+            body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $this->generateFunctionBody(
+                $methodBodyGenerator,
+                $name,
+                $params
+            ),
             options: []
         );
         $visitor->setNode($node);
     }
 
-    private function getFunctionBody(string $nodeName, array $params): string
-    {
+    private function generateFunctionBody(
+        MethodBodyGeneratorInterface $methodBodyGenerator,
+        string $nodeName,
+        array $params
+    ): void {
         $stack = [];
 
         foreach ($params['map'] as $socket => $translations) {
@@ -68,8 +76,6 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
                 $stack[$translation['socket']] = $translation['socket'];
             }
         }
-
-        $code = "";
 
         // ToDo: refactor and use code generator for this (extend code generator to generate function body)
         foreach ($stack as $socketName) {
@@ -83,24 +89,18 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             }
 
             if ($nodeAlias === 'output') {
-                $code .= sprintf(PHP_EOL . "\t" . 'return %s;', $args[0]);
+                $methodBodyGenerator
+                    ->newLineAndTab()
+                    ->return()->statement($args[0])->semicolon();
             } else {
                 $nodeSettings = $params['nodes'][$nodeAlias]['node'];
                 $nodeFullName = sprintf('%s_%s', $nodeSettings['addon'], $nodeSettings['pattern']);
-                $methodName = sha1(sprintf('%s_%s', $nodeName, $socket['node_alias']));
+                $methodName = 'execute_' . sha1(sprintf('%s_%s', $nodeName, $socket['node_alias']));
 
-                $code .= sprintf(
-                    '$%s = %s::execute_%s(%s);',
-                    $socketName,
-                    $nodeFullName,
-                    $methodName,
-                    join(', ', $args)
-                );
+                $methodBodyGenerator->variable($socketName)->assign()->staticCall($nodeFullName, $methodName, $args)->semicolon();
             }
 
-            $code .= PHP_EOL . "\t";
+            $methodBodyGenerator->newLineAndTab();
         }
-
-        return $code;
     }
 }

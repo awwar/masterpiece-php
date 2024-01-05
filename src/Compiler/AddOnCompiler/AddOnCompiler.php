@@ -40,16 +40,15 @@ class AddOnCompiler
             $options = $configVisitor->getNodeOptions($addonName, $node->getName());
 
             foreach ($options as $option) {
-                $body = $node->getBody($option['settings']);
-
                 $methodName = sha1(sprintf('%s_%s', $option['flow_name'], $option['node_alias']));
 
                 $method = $classGenerator
                     ->addMethod('execute_' . $methodName)
                     ->addComment('Flow: ' . $option['flow_name'])
                     ->addComment('Alias: ' . $option['node_alias'])
-                    ->setReturnType($outputType)
-                    ->setBody($body);
+                    ->setReturnType($outputType);
+
+                $node->compileBody($method->getBodyGenerator(), $option['settings']);
 
                 foreach ($node->getInput() as $input) {
                     $method->addArgument(name: $input->getName(), type: $input->getType());

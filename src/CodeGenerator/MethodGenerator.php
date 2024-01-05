@@ -5,7 +5,7 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 use Awwar\MasterpiecePhp\CodeGenerator\Utils\ArgumentsStringify;
 use Awwar\MasterpiecePhp\CodeGenerator\Utils\CommentStringify;
 
-class MethodGenerator implements MethodGeneratorInterface
+class MethodGenerator implements MethodGeneratorInterface, MethodBodyGeneratorInterface
 {
     private array $arguments = [];
     private array $comments = [];
@@ -37,9 +37,77 @@ class MethodGenerator implements MethodGeneratorInterface
         return $this;
     }
 
-    public function setBody(string $body): MethodGeneratorInterface
+    public function getBodyGenerator(): MethodBodyGeneratorInterface
     {
-        $this->body = $body;
+        return $this;
+    }
+
+    public function return(): MethodBodyGeneratorInterface
+    {
+        $this->body .= 'return ';
+
+        return $this;
+    }
+
+    public function statement(string $statement): MethodBodyGeneratorInterface
+    {
+        if (false === str_ends_with($statement, ';')) {
+            $statement .= ';';
+        }
+
+        $this->body .= $statement;
+
+        return $this;
+    }
+
+    public function twoStatementsCartage(string $firstStatement, string $secondStatement): MethodBodyGeneratorInterface
+    {
+        $this->body .= sprintf('[%s, %s];', $firstStatement, $secondStatement);
+
+        return $this;
+    }
+
+    public function newLine(): MethodBodyGeneratorInterface
+    {
+        $this->body .= PHP_EOL;
+        
+        return $this;
+    }
+
+    public function newLineAndTab(): MethodBodyGeneratorInterface
+    {
+        $this->newLine();
+        $this->body .= "\t";
+
+        return $this;
+    }
+
+    public function variable(string $name): MethodBodyGeneratorInterface
+    {
+        $this->body .= "$$name";
+
+        return $this;
+    }
+
+    public function assign(): MethodBodyGeneratorInterface
+    {
+        $this->body .= " = ";
+
+        return $this;
+    }
+
+    public function staticCall(string $from, string $method, array $args): MethodBodyGeneratorInterface
+    {
+        $argsStr = join(', ', $args);
+
+        $this->body .= "$from::$method($argsStr)";
+
+        return $this;
+    }
+
+    public function semicolon(): MethodBodyGeneratorInterface
+    {
+        $this->body .= ";";
 
         return $this;
     }

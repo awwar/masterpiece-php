@@ -2,6 +2,7 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Node;
 
+use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 use Closure;
 
 class AddOnNode
@@ -25,9 +26,9 @@ class AddOnNode
         return $this->output;
     }
 
-    public function getBody(array $options): string
+    public function compileBody(MethodBodyGeneratorInterface $methodBodyGenerator, array $options): void
     {
-        return call_user_func($this->body, $options);
+        call_user_func($this->body, $methodBodyGenerator, $options);
     }
 
     public function getName(): string

@@ -10,7 +10,7 @@ interface MethodGeneratorInterface
 
     public function setReturnType(string $type): MethodGeneratorInterface;
 
-    public function setBody(string $body): MethodGeneratorInterface;
+    public function getBodyGenerator(): MethodBodyGeneratorInterface;
 
     public function getClass(): ClassGeneratorInterface;
 }
