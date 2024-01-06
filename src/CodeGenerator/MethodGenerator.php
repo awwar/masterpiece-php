@@ -5,15 +5,16 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 use Awwar\MasterpiecePhp\CodeGenerator\Utils\ArgumentsStringify;
 use Awwar\MasterpiecePhp\CodeGenerator\Utils\CommentStringify;
 
-class MethodGenerator implements MethodGeneratorInterface, MethodBodyGeneratorInterface
+class MethodGenerator implements MethodGeneratorInterface
 {
     private array $arguments = [];
     private array $comments = [];
     private string $returnType = 'mixed';
-    private string $body = '';
+    private MethodBodyGenerator $bodyGenerator;
 
     public function __construct(private string $name, private ClassGeneratorInterface $classGenerator)
     {
+        $this->bodyGenerator = new MethodBodyGenerator($this);
     }
 
     public function addComment(string $comment): MethodGeneratorInterface
@@ -39,80 +40,10 @@ class MethodGenerator implements MethodGeneratorInterface, MethodBodyGeneratorIn
 
     public function getBodyGenerator(): MethodBodyGeneratorInterface
     {
-        return $this;
+        return $this->bodyGenerator;
     }
 
-    public function return(): MethodBodyGeneratorInterface
-    {
-        $this->body .= 'return ';
-
-        return $this;
-    }
-
-    public function statement(string $statement): MethodBodyGeneratorInterface
-    {
-        if (false === str_ends_with($statement, ';')) {
-            $statement .= ';';
-        }
-
-        $this->body .= $statement;
-
-        return $this;
-    }
-
-    public function twoStatementsCartage(string $firstStatement, string $secondStatement): MethodBodyGeneratorInterface
-    {
-        $this->body .= sprintf('[%s, %s];', $firstStatement, $secondStatement);
-
-        return $this;
-    }
-
-    public function newLine(): MethodBodyGeneratorInterface
-    {
-        $this->body .= PHP_EOL;
-        
-        return $this;
-    }
-
-    public function newLineAndTab(): MethodBodyGeneratorInterface
-    {
-        $this->newLine();
-        $this->body .= "\t";
-
-        return $this;
-    }
-
-    public function variable(string $name): MethodBodyGeneratorInterface
-    {
-        $this->body .= "$$name";
-
-        return $this;
-    }
-
-    public function assign(): MethodBodyGeneratorInterface
-    {
-        $this->body .= " = ";
-
-        return $this;
-    }
-
-    public function staticCall(string $from, string $method, array $args): MethodBodyGeneratorInterface
-    {
-        $argsStr = join(', ', $args);
-
-        $this->body .= "$from::$method($argsStr)";
-
-        return $this;
-    }
-
-    public function semicolon(): MethodBodyGeneratorInterface
-    {
-        $this->body .= ";";
-
-        return $this;
-    }
-
-    public function getClass(): ClassGeneratorInterface
+    public function end(): ClassGeneratorInterface
     {
         return $this->classGenerator;
     }
@@ -121,7 +52,7 @@ class MethodGenerator implements MethodGeneratorInterface, MethodBodyGeneratorIn
     {
         $arguments = ArgumentsStringify::stringify($this->arguments);
         $comments = CommentStringify::stringify($this->comments);
-        $body = trim($this->body);
+        $body = $this->bodyGenerator->generate();
         $returnType = $this->returnType;
         $name = $this->name;
 

@@ -77,7 +77,6 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             }
         }
 
-        // ToDo: refactor and use code generator for this (extend code generator to generate function body)
         foreach ($stack as $socketName) {
             $socket = $params['sockets'][$socketName];
             $nodeAlias = $socket['node_alias'];
@@ -85,19 +84,25 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             $args = [];
 
             foreach ($socket['input'] ?? [] as $inputSettings) {
-                $args[] = sprintf('$%s', $inputSettings['variable'] ?? $inputSettings['node_alias']);
+                $args[] = $inputSettings['variable'] ?? $inputSettings['node_alias'];
             }
 
             if ($nodeAlias === 'output') {
                 $methodBodyGenerator
                     ->newLineAndTab()
-                    ->return()->statement($args[0])->semicolon();
+                    ->return()->variable($args[0])->semicolon();
             } else {
                 $nodeSettings = $params['nodes'][$nodeAlias]['node'];
                 $nodeFullName = sprintf('%s_%s', $nodeSettings['addon'], $nodeSettings['pattern']);
                 $methodName = 'execute_' . sha1(sprintf('%s_%s', $nodeName, $socket['node_alias']));
 
-                $methodBodyGenerator->variable($socketName)->assign()->staticCall($nodeFullName, $methodName, $args)->semicolon();
+                $methodCall = $methodBodyGenerator->variable($socketName)->assign()->constant($nodeFullName)->staticAccess()->functionCall($methodName);
+
+                foreach ($args as $arg) {
+                    $methodCall->addArgumentAsVariable($arg);
+                }
+
+                $methodCall->end()->semicolon();
             }
 
             $methodBodyGenerator->newLineAndTab();

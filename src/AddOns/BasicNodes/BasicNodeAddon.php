@@ -26,8 +26,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()
-                ->statement('$a + $b')
+                ->return()->variable('a')->code('+')->variable('b')->semicolon()
         );
         $addOnCompileVisitor->setNode($addition);
         $subtraction = new AddOnNode(
@@ -37,8 +36,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()
-                ->statement('$a - $b')
+                ->return()->variable('a')->code('-')->variable('b')->semicolon()
         );
         $addOnCompileVisitor->setNode($subtraction);
         $division = new AddOnNode(
@@ -48,8 +46,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()
-                ->statement('$a / $b')
+                ->return()->variable('a')->code('/')->variable('b')->semicolon()
         );
         $addOnCompileVisitor->setNode($division);
         $multiplication = new AddOnNode(
@@ -59,8 +56,7 @@ class BasicNodeAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: 'int')),
             output: new NodeOutput(name: 'value', type: 'int'),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()
-                ->statement('$a * $b')
+                ->return()->variable('a')->code('*')->variable('b')->semicolon()
         );
         $addOnCompileVisitor->setNode($multiplication);
         $power = new AddOnNode(
@@ -71,7 +67,7 @@ class BasicNodeAddon implements AddOnInterface
             output: new NodeOutput(name: 'value', type: 'int'),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
                 ->return()
-                ->statement('pow($num, $exponent)')
+                ->functionCall('pow')->addArgumentAsVariable('num')->addArgumentAsVariable('exponent')->end()->semicolon()
         );
         $addOnCompileVisitor->setNode($power);
 

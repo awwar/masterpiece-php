@@ -4,6 +4,8 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 
 interface MethodBodyGeneratorInterface
 {
+    public function code(string $statement): MethodBodyGeneratorInterface;
+
     public function return(): MethodBodyGeneratorInterface;
 
     public function statement(string $statement): MethodBodyGeneratorInterface;
@@ -12,7 +14,13 @@ interface MethodBodyGeneratorInterface
 
     public function assign(): MethodBodyGeneratorInterface;
 
-    public function staticCall(string $from, string $method, array $args): MethodBodyGeneratorInterface;
+    public function constant(string $name): MethodBodyGeneratorInterface;
+
+    public function objectAccess(): MethodBodyGeneratorInterface;
+
+    public function staticAccess(): MethodBodyGeneratorInterface;
+
+    public function functionCall(string $method): FunctionCallArgumentsGenerator;
 
     public function semicolon(): MethodBodyGeneratorInterface;
 
@@ -21,4 +29,8 @@ interface MethodBodyGeneratorInterface
     public function newLineAndTab(): MethodBodyGeneratorInterface;
 
     public function twoStatementsCartage(string $firstStatement, string $secondStatement): MethodBodyGeneratorInterface;
+
+    public function rightTrim(string $substring): MethodBodyGeneratorInterface;
+
+    public function end(): MethodGeneratorInterface;
 }
