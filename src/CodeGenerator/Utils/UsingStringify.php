@@ -13,7 +13,7 @@ class UsingStringify
                 $usingString .= 'use ' . $namespace;
 
                 if ($alias != null) {
-                    $usingString .= 'as ' . $alias;
+                    $usingString .= ' as ' . $alias;
                 }
 
                 $usingString .= ';' . PHP_EOL;

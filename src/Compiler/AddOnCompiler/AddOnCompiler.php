@@ -33,7 +33,8 @@ class AddOnCompiler
             $classGenerator
                 ->setNamespace('Awwar\MasterpiecePhp\Nodes')
                 ->addComment('Addon: ' . $addonName)
-                ->addComment('Node: ' . $node->getName());
+                ->addComment('Node: ' . $node->getName())
+                ->addUsing('Awwar\MasterpiecePhp\Contracts', 'c');
 
             $outputType = $node->getOutput()->getType();
 
@@ -44,18 +45,57 @@ class AddOnCompiler
 
                 $method = $classGenerator
                     ->addMethod('execute_' . $methodName)
+                    ->makeStatic()
                     ->addComment('Flow: ' . $option['flow_name'])
                     ->addComment('Alias: ' . $option['node_alias'])
-                    ->setReturnType($outputType);
+                    ->setReturnType('c\\' . $outputType);
 
                 $node->compileBody($method->getBodyGenerator(), $option['settings']);
 
                 foreach ($node->getInput() as $input) {
-                    $method->addArgument(name: $input->getName(), type: $input->getType());
+                    $method->addArgument(name: $input->getName(), type: 'c\\' . $input->getType());
                 }
             }
 
             $classVisitor->createClass($nodeFullName, $classGenerator->generate());
+        }
+
+        foreach ($visitor->getContracts() as $contract) {
+            $contractFullName = sprintf('%s_%s', $addonName, $contract->getName());
+
+            $classGenerator = new ClassGenerator(name: $contractFullName);
+            $classGenerator->setNamespace('Awwar\MasterpiecePhp\Contracts')
+                ->addComment('Addon: ' . $addonName)
+                ->addComment('Contract: ' . $contract->getName());
+
+            $classGenerator
+                ->addMethod('__construct')
+                ->addArgument('value', 'int')
+                ->getBodyGenerator()
+                    ->variable('this')->objectAccess()->code('value')->assign()->variable('value')->semicolon()
+                ->end();
+
+            $classGenerator
+                ->addMethod('getValue')
+                ->setReturnType('int')
+                ->getBodyGenerator()
+                    ->return()->variable('this')->objectAccess()->code('value')->semicolon()
+                ->end();
+
+            foreach ($contract->getCastFrom() as $fromType => $nodeCallable) {
+                [$class, $methodName] = $nodeCallable;
+
+                $classGenerator
+                    ->addMethod('cast_from_' . $fromType)
+                    ->setReturnType('self')
+                    ->makeStatic()
+                    ->addArgument('value', $fromType)
+                    ->getBodyGenerator()
+                    ->return()->constant('\\' . $class)->staticAccess()->functionCall($methodName)->addArgumentAsVariable('value')->end()->semicolon()
+                    ->end();
+            }
+
+            $classVisitor->createClass($contractFullName, $classGenerator->generate());
         }
     }
 }

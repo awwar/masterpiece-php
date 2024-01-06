@@ -2,4 +2,4 @@
 type: contract
 name: additional_endpoint_output
 params:
-    extends: int
+    extends: number

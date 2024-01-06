@@ -9,8 +9,9 @@ class MethodGenerator implements MethodGeneratorInterface
 {
     private array $arguments = [];
     private array $comments = [];
-    private string $returnType = 'mixed';
+    private ?string $returnType = null;
     private MethodBodyGenerator $bodyGenerator;
+    private bool $isStatic = false;
 
     public function __construct(private string $name, private ClassGeneratorInterface $classGenerator)
     {
@@ -38,6 +39,13 @@ class MethodGenerator implements MethodGeneratorInterface
         return $this;
     }
 
+    public function makeStatic(): MethodGeneratorInterface
+    {
+        $this->isStatic = true;
+
+        return $this;
+    }
+
     public function getBodyGenerator(): MethodBodyGeneratorInterface
     {
         return $this->bodyGenerator;
@@ -53,12 +61,13 @@ class MethodGenerator implements MethodGeneratorInterface
         $arguments = ArgumentsStringify::stringify($this->arguments);
         $comments = CommentStringify::stringify($this->comments);
         $body = $this->bodyGenerator->generate();
-        $returnType = $this->returnType;
+        $returnDeclaration = $this->returnType === null ? '' : sprintf(': %s', $this->returnType);
         $name = $this->name;
+        $staticKeyword = $this->isStatic ? ' static' : '';
 
         return <<<PHP
 $comments
-public static function $name($arguments): $returnType
+public$staticKeyword function $name($arguments)$returnDeclaration
 {
     $body
 }

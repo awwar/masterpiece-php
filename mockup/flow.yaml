@@ -3,13 +3,13 @@ type: flow
 name: additional_endpoint_flow
 params:
     input:
-        -   contract: int
+        -   contract: number
             name: a
-        -   contract: int
+        -   contract: number
             name: b
 
     output:
-        -   contract: int
+        -   contract: number
             name: c
 
     sockets:

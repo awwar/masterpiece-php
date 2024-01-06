@@ -12,5 +12,7 @@ interface MethodGeneratorInterface
 
     public function getBodyGenerator(): MethodBodyGeneratorInterface;
 
+    public function makeStatic(): MethodGeneratorInterface;
+
     public function end(): ClassGeneratorInterface;
 }

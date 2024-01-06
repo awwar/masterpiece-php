@@ -37,7 +37,6 @@ class CompilerTest extends CaseWithContainer
 
         $settings->addAddOn(new BasicNodeAddon());
 
-
         $settings->addConfig(
             new Config(
                 name: 'base_endpoint',
@@ -55,13 +54,13 @@ class CompilerTest extends CaseWithContainer
                 params: [
                     'input'   => [
                         [
-                            'contract' => 'int',
+                            'contract' =>  'basic_node_integer',
                             'name'     => 'a',
                         ],
                     ],
                     'output'  => [
                         [
-                            'contract' => 'int',
+                            'contract' => 'basic_node_integer',
                             'name'     => 'b',
                         ],
                     ],
@@ -132,14 +131,18 @@ class CompilerTest extends CaseWithContainer
         include_once $settings->getGenerationPath() . '/app_my_test_flow.php';
         include_once $settings->getGenerationPath() . '/basic_node_addition.php';
         include_once $settings->getGenerationPath() . '/basic_node_number.php';
+        include_once $settings->getGenerationPath() . '/basic_node_integer.php';
 
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\app_my_test_flow::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_addition::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Nodes\basic_node_number::class));
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\Contracts\basic_node_integer::class));
 
-        $result = \Awwar\MasterpiecePhp\Nodes\app_my_test_flow::execute_d5841bc1419883204f3eb470796b977cf1e0dd65(10);
+        $input = \Awwar\MasterpiecePhp\Contracts\basic_node_integer::cast_from_mixed(10);
 
-        self::assertSame(13, $result);
+        $result = \Awwar\MasterpiecePhp\Nodes\app_my_test_flow::execute_d5841bc1419883204f3eb470796b977cf1e0dd65($input);
+
+        self::assertSame(13, $result->getValue());
     }
 }
 

@@ -4,6 +4,7 @@ namespace Awwar\MasterpiecePhp\Compiler;
 
 use Awwar\MasterpiecePhp\AddOns\App\AppAddon;
 use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompiler;
+use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompileVisitor;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\AppAddonVisitor;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
@@ -33,7 +34,7 @@ class Compiler
 
         // ToDo: Need to fold this piece of code in separate class
         // May be as AppAddon
-        $appAddonVisitor = new AppAddonVisitor();
+        $appAddonVisitor = new AddOnCompileVisitor();
 
         foreach ($compileContext->getConfigs() as $config) {
             $this
