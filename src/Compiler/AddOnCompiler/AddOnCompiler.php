@@ -6,6 +6,9 @@ use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\ClassGenerator;
 use Awwar\MasterpiecePhp\Compiler\ClassVisitorInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
+use Awwar\MasterpiecePhp\Compiler\Util\ContractName;
+use Awwar\MasterpiecePhp\Compiler\Util\ExecuteMethodName;
+use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
 #[ForDependencyInjection]
@@ -27,33 +30,32 @@ class AddOnCompiler
                 continue;
             }
 
-            $nodeFullName = sprintf('%s_%s', $addonName, $node->getName());
+            $nodeFullName = new NodeName(addonName: $addonName, nodeName: $node->getName());
 
             $classGenerator = new ClassGenerator(name: $nodeFullName);
             $classGenerator
-                ->setNamespace('Awwar\MasterpiecePhp\Nodes')
+                ->setNamespace('Awwar\MasterpiecePhp\App')
                 ->addComment('Addon: ' . $addonName)
-                ->addComment('Node: ' . $node->getName())
-                ->addUsing('Awwar\MasterpiecePhp\Contracts', 'c');
+                ->addComment('Node: ' . $node->getName());
 
             $outputType = $node->getOutput()->getType();
 
             $options = $configVisitor->getNodeOptions($addonName, $node->getName());
 
             foreach ($options as $option) {
-                $methodName = sha1(sprintf('%s_%s', $option['flow_name'], $option['node_alias']));
+                $methodName = new ExecuteMethodName(flowName: $option['flow_name'], nodeAlias: $option['node_alias']);
 
                 $method = $classGenerator
-                    ->addMethod('execute_' . $methodName)
+                    ->addMethod($methodName)
                     ->makeStatic()
                     ->addComment('Flow: ' . $option['flow_name'])
                     ->addComment('Alias: ' . $option['node_alias'])
-                    ->setReturnType('c\\' . $outputType);
+                    ->setReturnType($outputType);
 
                 $node->compileBody($method->getBodyGenerator(), $option['settings']);
 
                 foreach ($node->getInput() as $input) {
-                    $method->addArgument(name: $input->getName(), type: 'c\\' . $input->getType());
+                    $method->addArgument(name: $input->getName(), type: $input->getType());
                 }
             }
 
@@ -61,25 +63,27 @@ class AddOnCompiler
         }
 
         foreach ($visitor->getContracts() as $contract) {
-            $contractFullName = sprintf('%s_%s', $addonName, $contract->getName());
+            $contractFullName = new ContractName(addonName: $addonName, contractName: $contract->getName());
 
             $classGenerator = new ClassGenerator(name: $contractFullName);
-            $classGenerator->setNamespace('Awwar\MasterpiecePhp\Contracts')
+            $classGenerator->setNamespace('Awwar\MasterpiecePhp\App')
                 ->addComment('Addon: ' . $addonName)
                 ->addComment('Contract: ' . $contract->getName());
+
+            $classGenerator->addProperty('value', 'int', '');
 
             $classGenerator
                 ->addMethod('__construct')
                 ->addArgument('value', 'int')
                 ->getBodyGenerator()
-                    ->variable('this')->objectAccess()->code('value')->assign()->variable('value')->semicolon()
+                ->variable('this')->objectAccess()->raw('value')->assign()->variable('value')->semicolon()
                 ->end();
 
             $classGenerator
                 ->addMethod('getValue')
                 ->setReturnType('int')
                 ->getBodyGenerator()
-                    ->return()->variable('this')->objectAccess()->code('value')->semicolon()
+                ->return()->variable('this')->objectAccess()->raw('value')->semicolon()
                 ->end();
 
             foreach ($contract->getCastFrom() as $fromType => $nodeCallable) {
@@ -91,7 +95,10 @@ class AddOnCompiler
                     ->makeStatic()
                     ->addArgument('value', $fromType)
                     ->getBodyGenerator()
-                    ->return()->constant('\\' . $class)->staticAccess()->functionCall($methodName)->addArgumentAsVariable('value')->end()->semicolon()
+                    ->return()->constant('\\' . $class)->staticAccess()->functionCall($methodName)
+                        ->addArgumentAsVariable('value')
+                    ->end()
+                    ->semicolon()
                     ->end();
             }
 

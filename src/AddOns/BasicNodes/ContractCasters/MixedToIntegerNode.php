@@ -2,16 +2,16 @@
 
 namespace Awwar\MasterpiecePhp\AddOns\BasicNodes\ContractCasters;
 
-use Awwar\MasterpiecePhp\Contracts\basic_node_integer;
+use Awwar\MasterpiecePhp\App\base_integer_contract;
 
 class MixedToIntegerNode
 {
-    public static function execute(mixed $mixed): basic_node_integer
+    public static function execute(mixed $mixed): base_integer_contract
     {
         if (false === is_numeric($mixed)) {
             throw new \RuntimeException('Unable to cast not numeric to integer');
         }
 
-        return new basic_node_integer(value: (int) $mixed);
+        return new base_integer_contract(value: (int) $mixed);
     }
 }

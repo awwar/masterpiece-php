@@ -12,6 +12,7 @@ class ClassGenerator implements ClassGeneratorInterface
     private array $using = [];
     /** @var MethodGenerator[] $methods */
     private array $methods = [];
+    private array $properties = [];
 
     public function __construct(private string $name)
     {
@@ -31,6 +32,13 @@ class ClassGenerator implements ClassGeneratorInterface
         $this->methods[$name] = $method;
 
         return $method;
+    }
+
+    public function addProperty(string $name, string $type, string $default): ClassGeneratorInterface
+    {
+        $this->properties[$name] = [$type, $default];
+
+        return $this;
     }
 
     public function setNamespace(string $name): ClassGeneratorInterface
@@ -55,8 +63,28 @@ class ClassGenerator implements ClassGeneratorInterface
             $methods .= PHP_EOL . $method->generate();
         }
 
-        // ToDo: code beautify option
+        $properties = "\r";
+
+        foreach ($this->properties as $name => $typeDefault) {
+            [$type, $default] = $typeDefault;
+
+            if (empty($type)) {
+                $type = " ";
+            } else {
+                $type = "$type ";
+            }
+
+            if (empty($default)) {
+                $default = "";
+            } else {
+                $default = " = $default";
+            }
+
+            $properties .= PHP_EOL . "private {$type}\${$name}{$default};";
+        }
+
         $methods = implode(PHP_EOL . "\t", explode(PHP_EOL, $methods));
+        $properties = implode(PHP_EOL . "\t", explode(PHP_EOL, $properties));
 
         $using = UsingStringify::stringify($this->using);
 
@@ -72,7 +100,7 @@ namespace $namespace;
 $using
 $comments
 class $classname
-{{$methods}
+{{$properties}{$methods}
 }
 
 PHP;

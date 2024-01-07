@@ -10,7 +10,7 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
     {
     }
 
-    public function code(string $statement): MethodBodyGeneratorInterface
+    public function raw(string $statement): MethodBodyGeneratorInterface
     {
         $this->body .= $statement;
 
@@ -26,7 +26,7 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
 
     public function return(): MethodBodyGeneratorInterface
     {
-        return $this->code('return ');
+        return $this->raw('return ');
     }
 
     public function statement(string $statement): MethodBodyGeneratorInterface
@@ -35,7 +35,7 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
             $statement .= ';';
         }
 
-        return $this->code($statement);
+        return $this->raw($statement);
     }
 
     public function twoStatementsCartage(string $firstStatement, string $secondStatement): MethodBodyGeneratorInterface
@@ -45,51 +45,51 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
 
     public function newLine(): MethodBodyGeneratorInterface
     {
-        return $this->code(PHP_EOL);
+        return $this->raw(PHP_EOL);
     }
 
     public function newLineAndTab(): MethodBodyGeneratorInterface
     {
         $this->newLine();
 
-        return $this->code("\t");
+        return $this->raw("\t");
     }
 
     public function variable(string $name): MethodBodyGeneratorInterface
     {
-        return $this->code("$$name");
+        return $this->raw("$$name");
     }
 
     public function constant(string $name): MethodBodyGeneratorInterface
     {
-        return $this->code($name);
+        return $this->raw($name);
     }
 
     public function assign(): MethodBodyGeneratorInterface
     {
-        return $this->code(" = ");
+        return $this->raw(" = ");
     }
 
     public function objectAccess(): MethodBodyGeneratorInterface
     {
-        return $this->code("->");
+        return $this->raw("->");
     }
 
     public function staticAccess(): MethodBodyGeneratorInterface
     {
-        return $this->code("::");
+        return $this->raw("::");
     }
 
     public function functionCall(string $method): FunctionCallArgumentsGenerator
     {
-        $this->code("$method(");
+        $this->raw("$method(");
 
         return new FunctionCallArgumentsGenerator($this);
     }
 
     public function semicolon(): MethodBodyGeneratorInterface
     {
-        return $this->code(";");
+        return $this->raw(";");
     }
 
     public function generate(): string

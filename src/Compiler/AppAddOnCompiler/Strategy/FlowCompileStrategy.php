@@ -10,6 +10,8 @@ use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
+use Awwar\MasterpiecePhp\Compiler\Util\ExecuteMethodName;
+use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
 #[ForDependencyInjection]
@@ -93,8 +95,8 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
                     ->return()->variable($args[0])->semicolon();
             } else {
                 $nodeSettings = $params['nodes'][$nodeAlias]['node'];
-                $nodeFullName = sprintf('%s_%s', $nodeSettings['addon'], $nodeSettings['pattern']);
-                $methodName = 'execute_' . sha1(sprintf('%s_%s', $nodeName, $socket['node_alias']));
+                $nodeFullName = new NodeName(addonName: $nodeSettings['addon'], nodeName: $nodeSettings['pattern']);
+                $methodName = new ExecuteMethodName(flowName: $nodeName, nodeAlias: $socket['node_alias']);
 
                 $methodCall = $methodBodyGenerator->variable($socketName)->assign()->constant($nodeFullName)->staticAccess()->functionCall($methodName);
 

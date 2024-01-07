@@ -4,7 +4,7 @@ namespace Awwar\MasterpiecePhp\CodeGenerator;
 
 interface MethodBodyGeneratorInterface
 {
-    public function code(string $statement): MethodBodyGeneratorInterface;
+    public function raw(string $statement): MethodBodyGeneratorInterface;
 
     public function return(): MethodBodyGeneratorInterface;
 

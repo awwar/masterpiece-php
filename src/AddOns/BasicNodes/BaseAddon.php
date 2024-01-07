@@ -11,11 +11,11 @@ use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
 use Awwar\MasterpiecePhp\AddOns\BasicNodes\ContractCasters\MixedToIntegerNode;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
-use Awwar\MasterpiecePhp\Contracts\basic_node_integer;
+use Awwar\MasterpiecePhp\Compiler\Util\ContractName;
 
-class BasicNodeAddon implements AddOnInterface
+class BaseAddon implements AddOnInterface
 {
-    public const NAME = 'basic_node';
+    public const NAME = 'base';
 
     public function getName(): string
     {
@@ -32,70 +32,70 @@ class BasicNodeAddon implements AddOnInterface
         $addition = new AddOnNode(
             name: 'addition',
             input: NodeInputSet::create()
-                ->push(new NodeInput(name: 'a', type: 'basic_node_integer'))
-                ->push(new NodeInput(name: 'b', type: 'basic_node_integer')),
-            output: new NodeOutput(name: 'value', type: 'basic_node_integer'),
+                ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
+                ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
+            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
                 ->return()
-                ->code('new c\\basic_node_integer(')
+                ->raw('new base_integer_contract(')
                     ->variable('a')->objectAccess()->functionCall('getValue')->end()
-                    ->code('+')
+                    ->raw('+')
                     ->variable('b')->objectAccess()->functionCall('getValue')->end()
-                ->code(')')
+                ->raw(')')
                 ->semicolon()
         );
         $addOnCompileVisitor->setNode($addition);
         $subtraction = new AddOnNode(
             name: 'subtraction',
             input: NodeInputSet::create()
-                ->push(new NodeInput(name: 'a', type: 'basic_node_integer'))
-                ->push(new NodeInput(name: 'b', type: 'basic_node_integer')),
-            output: new NodeOutput(name: 'value', type: 'basic_node_integer'),
+                ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
+                ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
+            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()->code('new c\\basic_node_integer(')->variable('a')->code('-')->variable('b')->code(')')->semicolon()
+                ->return()->raw('new base_integer_contract(')->variable('a')->raw('-')->variable('b')->raw(')')->semicolon()
         );
         $addOnCompileVisitor->setNode($subtraction);
         $division = new AddOnNode(
             name: 'division',
             input: NodeInputSet::create()
-                ->push(new NodeInput(name: 'a', type: 'basic_node_integer'))
-                ->push(new NodeInput(name: 'b', type: 'basic_node_integer')),
-            output: new NodeOutput(name: 'value', type: 'basic_node_integer'),
+                ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
+                ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
+            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()->code('new c\\basic_node_integer(')->variable('a')->code('/')->variable('b')->code(')')->semicolon()
+                ->return()->raw('new base_integer_contract(')->variable('a')->raw('/')->variable('b')->raw(')')->semicolon()
         );
         $addOnCompileVisitor->setNode($division);
         $multiplication = new AddOnNode(
             name: 'multiplication',
             input: NodeInputSet::create()
-                ->push(new NodeInput(name: 'a', type: 'basic_node_integer'))
-                ->push(new NodeInput(name: 'b', type: 'basic_node_integer')),
-            output: new NodeOutput(name: 'value', type: 'basic_node_integer'),
+                ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
+                ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
+            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
-                ->return()->code('new c\\basic_node_integer(')->variable('a')->code('*')->variable('b')->code(')')->semicolon()
+                ->return()->raw('new base_integer_contract(')->variable('a')->raw('*')->variable('b')->raw(')')->semicolon()
         );
         $addOnCompileVisitor->setNode($multiplication);
         $power = new AddOnNode(
             name: 'power',
             input: NodeInputSet::create()
-                ->push(new NodeInput(name: 'num', type: 'basic_node_integer'))
-                ->push(new NodeInput(name: 'exponent', type: 'basic_node_integer')),
-            output: new NodeOutput(name: 'value', type: 'basic_node_integer'),
+                ->push(new NodeInput(name: 'num', type: new ContractName('base', 'integer')))
+                ->push(new NodeInput(name: 'exponent', type: new ContractName('base', 'integer'))),
+            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $methodBodyGenerator
                 ->return()
-                ->code('new c\\basic_node_integer(')
+                ->raw('new base_integer_contract(')
                 ->functionCall('pow')->addArgumentAsVariable('num')->addArgumentAsVariable('exponent')
-                ->end()->code(')')->semicolon()
+                ->end()->raw(')')->semicolon()
         );
         $addOnCompileVisitor->setNode($power);
 
         $number = new AddOnNode(
             name: 'number',
             input: NodeInputSet::create(),
-            output: new NodeOutput(name: 'value', type: 'basic_node_integer'),
+            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             body: fn (MethodBodyGeneratorInterface $methodBodyGenerator, array $options) => $methodBodyGenerator
                 ->return()
-                ->code('new c\\basic_node_integer(')->code($options['value'])->code(')')->semicolon(),
+                ->raw('new base_integer_contract(')->raw($options['value'])->raw(')')->semicolon(),
             options: []
         );
         $addOnCompileVisitor->setNode($number);

@@ -10,13 +10,13 @@ class FunctionCallArgumentsGenerator
 
     public function addArgumentAsVariable(string $string): FunctionCallArgumentsGenerator
     {
-        $this->methodBodyGenerator->variable($string)->code(', ');
+        $this->methodBodyGenerator->variable($string)->raw(', ');
 
         return $this;
     }
 
     public function end(): MethodBodyGeneratorInterface
     {
-        return $this->methodBodyGenerator->rightTrim(', ')->code(')');
+        return $this->methodBodyGenerator->rightTrim(', ')->raw(')');
     }
 }
