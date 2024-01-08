@@ -81,6 +81,7 @@ class CompilerTest extends CaseWithContainer
                             ],
                         ],
                         'socket_3' => [
+                            // this is fragment
                             'node_alias'  => 'output',
                             'input' => [
                                 [
@@ -118,6 +119,13 @@ class CompilerTest extends CaseWithContainer
                             'node'   => [
                                 'addon'   => 'base',
                                 'pattern' => 'addition',
+                            ],
+                        ],
+                        'output' => [
+                            'option' => [],
+                            'node'   => [
+                                'addon'   => 'base',
+                                'pattern' => 'output',
                             ],
                         ],
                     ],

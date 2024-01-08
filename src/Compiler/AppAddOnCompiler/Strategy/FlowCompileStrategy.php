@@ -3,7 +3,8 @@
 namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
-use Awwar\MasterpiecePhp\AddOn\Node\AddOnNode;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FragmentCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
@@ -50,14 +51,15 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             $output = new NodeOutput(name: $outputSettings['name'], type: $outputSettings['contract']);
         }
 
-        $node = new AddOnNode(
+        $node = new NodePattern(
             name: $name,
             input: $input,
             output: $output,
-            body: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $this->generateFunctionBody(
+            nodeBodyCompileCallback: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $this->generateFunctionBody(
                 $methodBodyGenerator,
                 $name,
-                $params
+                $params,
+                $visitor
             ),
             options: []
         );
@@ -67,7 +69,8 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
     private function generateFunctionBody(
         MethodBodyGeneratorInterface $methodBodyGenerator,
         string $nodeName,
-        array $params
+        array $params,
+        AddOnCompileVisitorInterface $visitor
     ): void {
         $stack = [];
 
@@ -89,23 +92,22 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
                 $args[] = $inputSettings['variable'] ?? $inputSettings['node_alias'];
             }
 
-            if ($nodeAlias === 'output') {
-                $methodBodyGenerator
-                    ->newLineAndTab()
-                    ->return()->variable($args[0])->semicolon();
-            } else {
-                $nodeSettings = $params['nodes'][$nodeAlias]['node'];
-                $nodeFullName = new NodeName(addonName: $nodeSettings['addon'], nodeName: $nodeSettings['pattern']);
-                $methodName = new ExecuteMethodName(flowName: $nodeName, nodeAlias: $socket['node_alias']);
+            $nodeSettings = $params['nodes'][$nodeAlias]['node'];
 
-                $methodCall = $methodBodyGenerator->variable($socketName)->assign()->constant($nodeFullName)->staticAccess()->functionCall($methodName);
+            $node = $visitor->getNode($nodeSettings['pattern']);
 
-                foreach ($args as $arg) {
-                    $methodCall->addArgumentAsVariable($arg);
-                }
+            $nodeFullName = new NodeName(addonName: $nodeSettings['addon'], nodeName: $nodeSettings['pattern']);
+            $methodName = new ExecuteMethodName(flowName: $nodeName, nodeAlias: $socket['node_alias']);
 
-                $methodCall->end()->semicolon();
-            }
+            $fragmentCompileContext = new FragmentCompileContext(
+                methodBodyGenerator: $methodBodyGenerator,
+                socketName: $socketName,
+                args: $args,
+                nodeName: $nodeFullName,
+                functionName: $methodName
+            );
+
+            $node->compileNodeFragment($fragmentCompileContext);
 
             $methodBodyGenerator->newLineAndTab();
         }

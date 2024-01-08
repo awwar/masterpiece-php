@@ -4,7 +4,8 @@ namespace Awwar\MasterpiecePhp\Compiler\AddOnCompiler;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
-use Awwar\MasterpiecePhp\AddOn\Node\AddOnNode;
+use Awwar\MasterpiecePhp\AddOn\Fragment\Fragment;
+use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
 use RuntimeException;
 
 class AddOnCompileVisitor implements AddOnCompileVisitorInterface
@@ -13,7 +14,9 @@ class AddOnCompileVisitor implements AddOnCompileVisitorInterface
 
     private array $contracts = [];
 
-    public function setNode(AddOnNode $node): void
+    private array $fragments = [];
+
+    public function setNode(NodePattern $node): void
     {
         $name = $node->getName();
 
@@ -25,7 +28,7 @@ class AddOnCompileVisitor implements AddOnCompileVisitorInterface
     }
 
     /**
-     * @return AddOnNode[]
+     * @return NodePattern[]
      */
     public function getNodes(): array
     {
@@ -49,5 +52,24 @@ class AddOnCompileVisitor implements AddOnCompileVisitorInterface
     public function getContracts(): array
     {
         return array_values($this->contracts);
+    }
+
+    public function setFragment(Fragment $fragment): void
+    {
+        $name = $fragment->getName();
+
+        if (isset($this->fragments[$name])) {
+            throw new RuntimeException(sprintf('Contract %s already declared', $name));
+        }
+
+        $this->fragments[$name] = $fragment;
+    }
+
+    /**
+     * @return Fragment[]
+     */
+    public function getFragments(): array
+    {
+        return array_values($this->fragments);
     }
 }
