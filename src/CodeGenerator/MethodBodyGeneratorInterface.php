@@ -6,6 +6,8 @@ interface MethodBodyGeneratorInterface
 {
     public function raw(string $statement): MethodBodyGeneratorInterface;
 
+    public function comment(string $message): MethodBodyGeneratorInterface;
+
     public function return(): MethodBodyGeneratorInterface;
 
     public function statement(string $statement): MethodBodyGeneratorInterface;

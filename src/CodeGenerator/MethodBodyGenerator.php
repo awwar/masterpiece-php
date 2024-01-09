@@ -29,6 +29,11 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
         return $this->raw('return ');
     }
 
+    public function comment(string $message): MethodBodyGeneratorInterface
+    {
+        return $this->raw('//' . $message);
+    }
+
     public function statement(string $statement): MethodBodyGeneratorInterface
     {
         if (false === str_ends_with($statement, ';')) {

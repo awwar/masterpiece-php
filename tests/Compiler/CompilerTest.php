@@ -43,7 +43,7 @@ class CompilerTest extends CaseWithContainer
                 name: 'base_endpoint',
                 type: 'endpoint',
                 params: [
-                    'flow' => 'my_test_flow'
+                    'flow' => 'my_test_flow',
                 ]
             )
         );
@@ -55,7 +55,7 @@ class CompilerTest extends CaseWithContainer
                 params: [
                     'input'   => [
                         [
-                            'contract' =>  new ContractName('base', 'integer'),
+                            'contract' => new ContractName('base', 'integer'),
                             'name'     => 'a',
                         ],
                     ],
@@ -68,6 +68,12 @@ class CompilerTest extends CaseWithContainer
                     'sockets' => [
                         'socket_1' => [
                             'node_alias' => 'number_node_1',
+                            'transition' => [
+                                [
+                                    'condition' => true,
+                                    'socket'    => 'socket_2',
+                                ],
+                            ],
                         ],
                         'socket_2' => [
                             'node_alias' => 'additional_node_1',
@@ -79,28 +85,56 @@ class CompilerTest extends CaseWithContainer
                                     'node_alias' => 'socket_1',
                                 ],
                             ],
+                            'transition' => [
+                                [
+                                    'condition' => true,
+                                    'socket'    => 'socket_3',
+                                ],
+                            ],
                         ],
                         'socket_3' => [
-                            // this is fragment
-                            'node_alias'  => 'output',
-                            'input' => [
+                            'node_alias' => 'if_node_1',
+                            'input'      => [
                                 [
                                     'node_alias' => 'socket_2',
                                 ],
                             ],
-                        ],
-                    ],
-                    'map'     => [
-                        'socket_1' => [
-                            [
-                                'condition' => true,
-                                'socket'    => 'socket_2',
+                            'transition' => [
+                                [
+                                    'condition' => true,
+                                    'socket'    => 'socket_6',
+                                ],
+                                [
+                                    'condition' => false,
+                                    'socket'    => 'socket_4',
+                                ],
                             ],
                         ],
-                        'socket_2' => [
-                            [
-                                'condition' => true,
-                                'socket'    => 'socket_3',
+                        'socket_4' => [
+                            'node_alias' => 'number_node_2',
+                            'transition' => [
+                                [
+                                    'condition' => true,
+                                    'socket'    => 'socket_5',
+                                ],
+                            ],
+                        ],
+                        'socket_5' => [
+                            // this is fragment
+                            'node_alias' => 'output',
+                            'input'      => [
+                                [
+                                    'node_alias' => 'socket_4',
+                                ],
+                            ],
+                        ],
+                        'socket_6' => [
+                            // this is fragment
+                            'node_alias' => 'output',
+                            'input'      => [
+                                [
+                                    'node_alias' => 'socket_2',
+                                ],
                             ],
                         ],
                     ],
@@ -114,6 +148,15 @@ class CompilerTest extends CaseWithContainer
                                 'pattern' => 'number',
                             ],
                         ],
+                        'number_node_2'     => [
+                            'option' => [
+                                'value' => 0,
+                            ],
+                            'node'   => [
+                                'addon'   => 'base',
+                                'pattern' => 'number',
+                            ],
+                        ],
                         'additional_node_1' => [
                             'option' => [],
                             'node'   => [
@@ -121,11 +164,20 @@ class CompilerTest extends CaseWithContainer
                                 'pattern' => 'addition',
                             ],
                         ],
-                        'output' => [
+                        'output'            => [
                             'option' => [],
                             'node'   => [
                                 'addon'   => 'base',
                                 'pattern' => 'output',
+                            ],
+                        ],
+                        'if_node_1'         => [
+                            'option' => [
+                                'condition' => "$0 > 0"
+                            ],
+                            'node'   => [
+                                'addon'   => 'base',
+                                'pattern' => 'if',
                             ],
                         ],
                     ],
@@ -139,12 +191,10 @@ class CompilerTest extends CaseWithContainer
 
         include_once $settings->getGenerationPath() . '/app_my_test_flow_node.php';
         include_once $settings->getGenerationPath() . '/base_addition_node.php';
-        include_once $settings->getGenerationPath() . '/base_number_node.php';
         include_once $settings->getGenerationPath() . '/base_integer_contract.php';
 
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\app_my_test_flow_node::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_addition_node::class));
-        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_number_node::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_integer_contract::class));
 
         $input = \Awwar\MasterpiecePhp\App\base_integer_contract::cast_from_mixed(10);

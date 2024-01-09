@@ -3,7 +3,7 @@
 namespace Awwar\MasterpiecePhp\AddOn\Node;
 
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FragmentCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContext;
 use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use Closure;
 
@@ -15,12 +15,12 @@ class NodePattern
         private NodeInputSet $input,
         private NodeOutput $output,
         private ?Closure $nodeBodyCompileCallback = null,
-        private ?Closure $nodeFragmentCompileCallback = null,
+        private ?Closure $flowFragmentCompileCallback = null,
         private array $options = []
     ) {
         $this->nodeBodyCompileCallback ??= fn (BodyCompileContext $context) => $context->skip();
 
-        $this->nodeFragmentCompileCallback ??= function (FragmentCompileContext $context) use ($name) {
+        $this->flowFragmentCompileCallback ??= function (FlowFragmentCompileContext $context) use ($name) {
             $methodCall = $context->getMethodBodyGenerator()
                 ->variable($context->getSocketName())
                 ->assign()
@@ -49,9 +49,9 @@ class NodePattern
         call_user_func($this->nodeBodyCompileCallback, $context);
     }
 
-    public function compileNodeFragment(FragmentCompileContext $context): void
+    public function compileFlowFragment(FlowFragmentCompileContext $context): void
     {
-        call_user_func($this->nodeFragmentCompileCallback, $context);
+        call_user_func($this->flowFragmentCompileCallback, $context);
     }
 
     public function getFullName(): string

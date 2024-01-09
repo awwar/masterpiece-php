@@ -2,18 +2,21 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext;
 
+use Awwar\MasterpiecePhp\AddOn\SubcompileInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 
-class FragmentCompileContext
+class FlowFragmentCompileContext
 {
     private bool $isSkip = false;
 
     public function __construct(
         private MethodBodyGeneratorInterface $methodBodyGenerator,
+        private SubcompileInterface $subcompile,
         private string $socketName,
         private array $args,
         private string $nodeName,
-        private string $functionName
+        private string $functionName,
+        private array $options = []
     ) {
     }
 
@@ -50,5 +53,15 @@ class FragmentCompileContext
     public function getMethodName(): string
     {
         return $this->functionName;
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function getSubcompile(): SubcompileInterface
+    {
+        return $this->subcompile;
     }
 }

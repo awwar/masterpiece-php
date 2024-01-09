@@ -69,6 +69,10 @@ class Compiler
 
             $outputType = $nodePattern->getOutput()->getType();
 
+            if ($nodePattern->getOutput()->isHasOutput() === false) {
+                $outputType = 'void';
+            }
+
             $options = $configVisitor->getNodeOptions($nodePattern->getAddonName(), $nodePattern->getName());
 
             $methodsCount = 0;

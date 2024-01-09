@@ -6,7 +6,7 @@ use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
 use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FragmentCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
@@ -39,7 +39,7 @@ class BaseAddon implements AddOnInterface
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
-                ->raw('new base_integer_contract(')
+                ->raw('new ' . $integerContract->getFullName() . '(')
                 ->variable('a')->objectAccess()->functionCall('getValue')->end()
                 ->raw('+')
                 ->variable('b')->objectAccess()->functionCall('getValue')->end()
@@ -55,9 +55,11 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
-                ->return()->raw('new base_integer_contract(')->variable('a')->raw('-')->variable('b')->raw(
-                    ')'
-                )->semicolon()
+                ->return()
+                ->raw('new ' . $integerContract->getFullName() . '(')
+                ->variable('a')->raw('-')->variable('b')
+                ->raw(')')
+                ->semicolon()
         );
         $addOnCompileVisitor->setNodePattern($subtraction);
         $division = new NodePattern(
@@ -68,9 +70,11 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
-                ->return()->raw('new base_integer_contract(')->variable('a')->raw('/')->variable('b')->raw(
-                    ')'
-                )->semicolon()
+                ->return()
+                ->raw('new ' . $integerContract->getFullName() . '(')
+                ->variable('a')->raw('/')->variable('b')
+                ->raw(')')
+                ->semicolon()
         );
         $addOnCompileVisitor->setNodePattern($division);
         $multiplication = new NodePattern(
@@ -81,9 +85,11 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
-                ->return()->raw('new base_integer_contract(')->variable('a')->raw('*')->variable('b')->raw(
-                    ')'
-                )->semicolon()
+                ->return()
+                ->raw('new ' . $integerContract->getFullName() . '(')
+                ->variable('a')->raw('*')->variable('b')
+                ->raw(')')
+                ->semicolon()
         );
         $addOnCompileVisitor->setNodePattern($multiplication);
         $power = new NodePattern(
@@ -95,7 +101,7 @@ class BaseAddon implements AddOnInterface
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
             nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
-                ->raw('new base_integer_contract(')
+                ->raw('new ' . $integerContract->getFullName() . '(')
                 ->functionCall('pow')->addArgumentAsVariable('num')->addArgumentAsVariable('exponent')
                 ->end()->raw(')')->semicolon()
         );
@@ -106,10 +112,14 @@ class BaseAddon implements AddOnInterface
             name: 'number',
             input: NodeInputSet::create(),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            nodeBodyCompileCallback: function (BodyCompileContext $context) {
+            flowFragmentCompileCallback: function (FlowFragmentCompileContext $context) use ($integerContract) {
                 $context->getMethodBodyGenerator()
-                    ->return()
-                    ->raw('new base_integer_contract(')->raw($context->getOptions()['value'])->raw(')')->semicolon();
+                    ->variable($context->getSocketName())
+                    ->assign()
+                    ->raw('new ' . $integerContract->getFullName() . '(')
+                    ->constant($context->getOptions()['value'])
+                    ->raw(')')
+                    ->semicolon();
             },
             options: [
                 'value',
@@ -121,8 +131,8 @@ class BaseAddon implements AddOnInterface
             addonName: self::NAME,
             name: 'output',
             input: NodeInputSet::create(),
-            output: new NodeOutput(name: 'value', type: null),
-            nodeFragmentCompileCallback: function (FragmentCompileContext $context) {
+            output: NodeOutput::noOutput(),
+            flowFragmentCompileCallback: function (FlowFragmentCompileContext $context) {
                 $firstInput = $context->getArgs()[0];
 
                 $context->getMethodBodyGenerator()
@@ -132,19 +142,36 @@ class BaseAddon implements AddOnInterface
         );
         $addOnCompileVisitor->setNodePattern($output);
 
-//        $if = new NodePattern(
-//            addonName: self::NAME,
-//            name: 'if',
-//            input: NodeInputSet::create(),
-//            output: new NodeOutput(name: 'value', type: null),
-//            nodeFragmentCompileCallback: function (FragmentCompileContext $context) {
-//                $firstInput = $context->getArgs()[0];
-//
-//                $context->getMethodBodyGenerator()
-//                    ->return()->variable($firstInput)->semicolon();
-//            },
-//            options: [],
-//        );
-//        $addOnCompileVisitor->setNodePattern($if);
+        $if = new NodePattern(
+            addonName: self::NAME,
+            name: 'if',
+            input: NodeInputSet::create(),
+            output: NodeOutput::noOutput(),
+            flowFragmentCompileCallback: function (FlowFragmentCompileContext $context) {
+                $condition = $context->getOptions()['condition'];
+
+                $replacement = [];
+                foreach ($context->getArgs() as $i => $arg) {
+                    $replacement["\$$i"] = "\${$arg}->getValue()";
+                }
+                $condition = strtr($condition, $replacement);
+
+                $generator = $context->getMethodBodyGenerator();
+
+                $generator->newLineAndTab()->raw("if ($condition) {")->newLineAndTab();
+
+                $context->getSubcompile()->subcompileSocketCondition($generator, $context->getSocketName(), 0);
+
+                $generator->newLineAndTab()->raw("} else {")->newLineAndTab();
+
+                $context->getSubcompile()->subcompileSocketCondition($generator, $context->getSocketName(), 1);
+
+                $generator->newLineAndTab()->raw("}");
+
+                $generator->newLineAndTab();
+            },
+            options: [],
+        );
+        $addOnCompileVisitor->setNodePattern($if);
     }
 }
