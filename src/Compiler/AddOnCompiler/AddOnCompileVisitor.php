@@ -4,40 +4,46 @@ namespace Awwar\MasterpiecePhp\Compiler\AddOnCompiler;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
-use Awwar\MasterpiecePhp\AddOn\Fragment\Fragment;
 use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
+use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
+use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use RuntimeException;
 
-class AddOnCompileVisitor implements AddOnCompileVisitorInterface
+class AddOnCompileVisitor implements AddOnCompileVisitorInterface, NodePatternObtainerInterface
 {
-    private array $nodes = [];
+    private array $nodePatterns = [];
 
     private array $contracts = [];
 
-    private array $fragments = [];
-
-    public function setNode(NodePattern $node): void
+    public function setNodePattern(NodePattern $nodePattern): void
     {
-        $name = $node->getName();
+        $name = $nodePattern->getFullName();
 
-        if (isset($this->nodes[$name])) {
+        if (isset($this->nodePatterns[$name])) {
             throw new RuntimeException(sprintf('Node %s already declared', $name));
         }
 
-        $this->nodes[$name] = $node;
+        $this->nodePatterns[$name] = $nodePattern;
+    }
+
+    public function getNodePattern(string $addonName, string $nodeName): NodePattern
+    {
+        $nodeName = new NodeName($addonName, $nodeName);
+
+        return $this->nodePatterns[(string) $nodeName];
     }
 
     /**
      * @return NodePattern[]
      */
-    public function getNodes(): array
+    public function getNodesPatterns(): array
     {
-        return array_values($this->nodes);
+        return array_values($this->nodePatterns);
     }
 
     public function setContract(Contract $contract): void
     {
-        $name = $contract->getName();
+        $name = $contract->getFullName();
 
         if (isset($this->contracts[$name])) {
             throw new RuntimeException(sprintf('Contract %s already declared', $name));
@@ -52,24 +58,5 @@ class AddOnCompileVisitor implements AddOnCompileVisitorInterface
     public function getContracts(): array
     {
         return array_values($this->contracts);
-    }
-
-    public function setFragment(Fragment $fragment): void
-    {
-        $name = $fragment->getName();
-
-        if (isset($this->fragments[$name])) {
-            throw new RuntimeException(sprintf('Contract %s already declared', $name));
-        }
-
-        $this->fragments[$name] = $fragment;
-    }
-
-    /**
-     * @return Fragment[]
-     */
-    public function getFragments(): array
-    {
-        return array_values($this->fragments);
     }
 }

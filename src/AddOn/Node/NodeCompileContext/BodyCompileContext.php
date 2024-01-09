@@ -2,13 +2,14 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext;
 
+use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 
 class BodyCompileContext
 {
     private bool $isSkip = false;
 
-    public function __construct(private MethodBodyGeneratorInterface $methodBodyGenerator, private array $options)
+    public function __construct(private MethodBodyGeneratorInterface $methodBodyGenerator, private array $options, private NodePatternObtainerInterface $nodePatternObtain)
     {
     }
 
@@ -30,5 +31,10 @@ class BodyCompileContext
     public function isSkip(): bool
     {
         return $this->isSkip;
+    }
+
+    public function getNodePatternObtain(): NodePatternObtainerInterface
+    {
+        return $this->nodePatternObtain;
     }
 }

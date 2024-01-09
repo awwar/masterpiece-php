@@ -25,12 +25,13 @@ class BaseAddon implements AddOnInterface
 
     public function compile(AddOnCompileVisitorInterface $addOnCompileVisitor): void
     {
-        $integerContract = new Contract(name: 'integer');
+        $integerContract = new Contract(addonName: self::NAME, name: 'integer');
         $integerContract->addCastFrom('mixed', MixedToIntegerNode::class, 'execute');
 
         $addOnCompileVisitor->setContract($integerContract);
 
         $addition = new NodePattern(
+            addonName: self::NAME,
             name: 'addition',
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
@@ -45,8 +46,9 @@ class BaseAddon implements AddOnInterface
                 ->raw(')')
                 ->semicolon()
         );
-        $addOnCompileVisitor->setNode($addition);
+        $addOnCompileVisitor->setNodePattern($addition);
         $subtraction = new NodePattern(
+            addonName: self::NAME,
             name: 'subtraction',
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
@@ -57,8 +59,9 @@ class BaseAddon implements AddOnInterface
                     ')'
                 )->semicolon()
         );
-        $addOnCompileVisitor->setNode($subtraction);
+        $addOnCompileVisitor->setNodePattern($subtraction);
         $division = new NodePattern(
+            addonName: self::NAME,
             name: 'division',
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
@@ -69,8 +72,9 @@ class BaseAddon implements AddOnInterface
                     ')'
                 )->semicolon()
         );
-        $addOnCompileVisitor->setNode($division);
+        $addOnCompileVisitor->setNodePattern($division);
         $multiplication = new NodePattern(
+            addonName: self::NAME,
             name: 'multiplication',
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
@@ -81,8 +85,9 @@ class BaseAddon implements AddOnInterface
                     ')'
                 )->semicolon()
         );
-        $addOnCompileVisitor->setNode($multiplication);
+        $addOnCompileVisitor->setNodePattern($multiplication);
         $power = new NodePattern(
+            addonName: self::NAME,
             name: 'power',
             input: NodeInputSet::create()
                 ->push(new NodeInput(name: 'num', type: new ContractName('base', 'integer')))
@@ -94,9 +99,10 @@ class BaseAddon implements AddOnInterface
                 ->functionCall('pow')->addArgumentAsVariable('num')->addArgumentAsVariable('exponent')
                 ->end()->raw(')')->semicolon()
         );
-        $addOnCompileVisitor->setNode($power);
+        $addOnCompileVisitor->setNodePattern($power);
 
         $number = new NodePattern(
+            addonName: self::NAME,
             name: 'number',
             input: NodeInputSet::create(),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
@@ -109,9 +115,10 @@ class BaseAddon implements AddOnInterface
                 'value',
             ]
         );
-        $addOnCompileVisitor->setNode($number);
+        $addOnCompileVisitor->setNodePattern($number);
 
-        $if = new NodePattern(
+        $output = new NodePattern(
+            addonName: self::NAME,
             name: 'output',
             input: NodeInputSet::create(),
             output: new NodeOutput(name: 'value', type: null),
@@ -123,6 +130,21 @@ class BaseAddon implements AddOnInterface
             },
             options: [],
         );
-        $addOnCompileVisitor->setNode($if);
+        $addOnCompileVisitor->setNodePattern($output);
+
+//        $if = new NodePattern(
+//            addonName: self::NAME,
+//            name: 'if',
+//            input: NodeInputSet::create(),
+//            output: new NodeOutput(name: 'value', type: null),
+//            nodeFragmentCompileCallback: function (FragmentCompileContext $context) {
+//                $firstInput = $context->getArgs()[0];
+//
+//                $context->getMethodBodyGenerator()
+//                    ->return()->variable($firstInput)->semicolon();
+//            },
+//            options: [],
+//        );
+//        $addOnCompileVisitor->setNodePattern($if);
     }
 }

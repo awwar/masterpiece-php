@@ -5,12 +5,9 @@ namespace Awwar\MasterpiecePhp\Compiler;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
 use Awwar\MasterpiecePhp\AddOns\App\AppAddon;
 use Awwar\MasterpiecePhp\CodeGenerator\ClassGenerator;
-use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompiler;
 use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompileVisitor;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
-use Awwar\MasterpiecePhp\Compiler\Util\ContractName;
 use Awwar\MasterpiecePhp\Compiler\Util\ExecuteMethodName;
-use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 
@@ -19,7 +16,6 @@ class Compiler
 {
     public function __construct(
         private Filesystem $filesystem,
-        private AddOnCompiler $addOnCompiler,
         private ConfigCompileStrategyFactory $factory
     ) {
     }
@@ -50,30 +46,32 @@ class Compiler
 
         $compileContext->addAddOn(new AppAddon($appAddonVisitor));
 
-        $classVisitor = new ClassVisitor();
-
         $visitor = new AddOnCompileVisitor();
 
         foreach ($compileContext->getAddOns() as $addOn) {
             $addOn->compile($visitor);
         }
 
-        foreach ($visitor->getNodes() as $node) {
-            if ($configVisitor->isNodeDemand($addonName, $node->getName()) === false) {
+        $classVisitor = new ClassVisitor();
+
+        foreach ($visitor->getNodesPatterns() as $nodePattern) {
+            if ($configVisitor->isNodeDemand($nodePattern->getAddonName(), $nodePattern->getName()) === false) {
                 continue;
             }
 
-            $nodeFullName = new NodeName(addonName: $addonName, nodeName: $node->getName());
+            $nodeFullName = $nodePattern->getFullName();
 
             $classGenerator = new ClassGenerator(name: $nodeFullName);
             $classGenerator
                 ->setNamespace('Awwar\MasterpiecePhp\App')
-                ->addComment('Addon: ' . $addonName)
-                ->addComment('Node: ' . $node->getName());
+                ->addComment('Addon: ' . $nodePattern->getAddonName())
+                ->addComment('Node: ' . $nodePattern->getName());
 
-            $outputType = $node->getOutput()->getType();
+            $outputType = $nodePattern->getOutput()->getType();
 
-            $options = $configVisitor->getNodeOptions($addonName, $node->getName());
+            $options = $configVisitor->getNodeOptions($nodePattern->getAddonName(), $nodePattern->getName());
+
+            $methodsCount = 0;
 
             foreach ($options as $option) {
                 $methodName = new ExecuteMethodName(flowName: $option['flow_name'], nodeAlias: $option['node_alias']);
@@ -85,35 +83,45 @@ class Compiler
                     ->addComment('Alias: ' . $option['node_alias'])
                     ->setReturnType($outputType);
 
-                $compileContext = new BodyCompileContext($method->getBodyGenerator(), $option['settings']);
+                $bodyCompileContext = new BodyCompileContext(
+                    $method->getBodyGenerator(),
+                    $option['settings'],
+                    $visitor
+                );
 
-                $node->compileNodeBody($compileContext);
+                $nodePattern->compileNodeBody($bodyCompileContext);
 
-                if ($compileContext->isSkip()) {
+                if ($bodyCompileContext->isSkip()) {
                     continue;
                 }
 
-                foreach ($node->getInput() as $input) {
-                    $method->addArgument(name: $input->getName(), type: $input->getType());
+                $methodsCount++;
+
+                foreach ($nodePattern->getInput() as $input) {
+                    $method->addParameter(name: $input->getName(), type: $input->getType());
                 }
+            }
+
+            if ($methodsCount === 0) {
+                continue;
             }
 
             $classVisitor->createClass($nodeFullName, $classGenerator->generate());
         }
 
         foreach ($visitor->getContracts() as $contract) {
-            $contractFullName = new ContractName(addonName: $addonName, contractName: $contract->getName());
+            $contractFullName = $contract->getFullName();
 
             $classGenerator = new ClassGenerator(name: $contractFullName);
             $classGenerator->setNamespace('Awwar\MasterpiecePhp\App')
-                ->addComment('Addon: ' . $addonName)
+                ->addComment('Addon: ' . $contract->getAddonName())
                 ->addComment('Contract: ' . $contract->getName());
 
             $classGenerator->addProperty('value', 'int', '');
 
             $classGenerator
                 ->addMethod('__construct')
-                ->addArgument('value', 'int')
+                ->addParameter('value', 'int')
                 ->getBodyGenerator()
                 ->variable('this')->objectAccess()->raw('value')->assign()->variable('value')->semicolon()
                 ->end();
@@ -132,7 +140,7 @@ class Compiler
                     ->addMethod('cast_from_' . $fromType)
                     ->setReturnType('self')
                     ->makeStatic()
-                    ->addArgument('value', $fromType)
+                    ->addParameter('value', $fromType)
                     ->getBodyGenerator()
                     ->return()->constant('\\' . $class)->staticAccess()->functionCall($methodName)
                     ->addArgumentAsVariable('value')
@@ -143,8 +151,6 @@ class Compiler
 
             $classVisitor->createClass($contractFullName, $classGenerator->generate());
         }
-
-        $this->addOnCompiler->compile($addOn, $configVisitor, $classVisitor);
 
         $path = $compileContext->getGenerationPath();
 

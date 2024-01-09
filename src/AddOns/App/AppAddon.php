@@ -18,8 +18,8 @@ class AppAddon implements AddOnInterface
 
     public function compile(AddOnCompileVisitorInterface $addOnCompileVisitor): void
     {
-        foreach ($this->addonVisitor->getNodes() as $node) {
-            $addOnCompileVisitor->setNode($node);
+        foreach ($this->addonVisitor->getNodesPatterns() as $node) {
+            $addOnCompileVisitor->setNodePattern($node);
         }
     }
 }

@@ -3,16 +3,17 @@
 namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FragmentCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
+use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Compiler\Util\ExecuteMethodName;
-use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
 #[ForDependencyInjection]
@@ -52,25 +53,26 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
         }
 
         $node = new NodePattern(
+            addonName: 'app',
             name: $name,
             input: $input,
             output: $output,
-            nodeBodyCompileCallback: fn (MethodBodyGeneratorInterface $methodBodyGenerator) => $this->generateFunctionBody(
-                $methodBodyGenerator,
+            nodeBodyCompileCallback: fn (BodyCompileContext $bodyCompileContext) => $this->generateFunctionBody(
+                $bodyCompileContext->getMethodBodyGenerator(),
                 $name,
                 $params,
-                $visitor
+                $bodyCompileContext->getNodePatternObtain()
             ),
             options: []
         );
-        $visitor->setNode($node);
+        $visitor->setNodePattern($node);
     }
 
     private function generateFunctionBody(
         MethodBodyGeneratorInterface $methodBodyGenerator,
         string $nodeName,
         array $params,
-        AddOnCompileVisitorInterface $visitor
+        NodePatternObtainerInterface $nodePatternObtainer
     ): void {
         $stack = [];
 
@@ -94,16 +96,15 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
 
             $nodeSettings = $params['nodes'][$nodeAlias]['node'];
 
-            $node = $visitor->getNode($nodeSettings['pattern']);
+            $node = $nodePatternObtainer->getNodePattern($nodeSettings['addon'], $nodeSettings['pattern']);
 
-            $nodeFullName = new NodeName(addonName: $nodeSettings['addon'], nodeName: $nodeSettings['pattern']);
             $methodName = new ExecuteMethodName(flowName: $nodeName, nodeAlias: $socket['node_alias']);
 
             $fragmentCompileContext = new FragmentCompileContext(
                 methodBodyGenerator: $methodBodyGenerator,
                 socketName: $socketName,
                 args: $args,
-                nodeName: $nodeFullName,
+                nodeName: $node->getFullName(),
                 functionName: $methodName
             );
 

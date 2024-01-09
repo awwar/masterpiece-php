@@ -4,11 +4,13 @@ namespace Awwar\MasterpiecePhp\AddOn\Node;
 
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FragmentCompileContext;
+use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
 use Closure;
 
 class NodePattern
 {
     public function __construct(
+        private string $addonName,
         private string $name,
         private NodeInputSet $input,
         private NodeOutput $output,
@@ -17,6 +19,7 @@ class NodePattern
         private array $options = []
     ) {
         $this->nodeBodyCompileCallback ??= fn (BodyCompileContext $context) => $context->skip();
+
         $this->nodeFragmentCompileCallback ??= function (FragmentCompileContext $context) use ($name) {
             $methodCall = $context->getMethodBodyGenerator()
                 ->variable($context->getSocketName())
@@ -51,9 +54,19 @@ class NodePattern
         call_user_func($this->nodeFragmentCompileCallback, $context);
     }
 
+    public function getFullName(): string
+    {
+        return new NodeName($this->addonName, $this->name);
+    }
+
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getAddonName(): string
+    {
+        return $this->addonName;
     }
 
     public function getOptions(): array

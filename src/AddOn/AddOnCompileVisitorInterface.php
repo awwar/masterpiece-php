@@ -9,5 +9,5 @@ interface AddOnCompileVisitorInterface
 {
     public function setContract(Contract $contract): void;
 
-    public function setNode(NodePattern $node): void;
+    public function setNodePattern(NodePattern $nodePattern): void;
 }

@@ -7,7 +7,7 @@ use Awwar\MasterpiecePhp\CodeGenerator\Utils\CommentStringify;
 
 class MethodGenerator implements MethodGeneratorInterface
 {
-    private array $arguments = [];
+    private array $parameters = [];
     private array $comments = [];
     private ?string $returnType = null;
     private MethodBodyGenerator $bodyGenerator;
@@ -25,14 +25,14 @@ class MethodGenerator implements MethodGeneratorInterface
         return $this;
     }
 
-    public function addArgument(string $name, string $type): MethodGeneratorInterface
+    public function addParameter(string $name, string $type): MethodGeneratorInterface
     {
-        $this->arguments[$name] = $type;
+        $this->parameters[$name] = $type;
 
         return $this;
     }
 
-    public function setReturnType(string $type): MethodGeneratorInterface
+    public function setReturnType(?string $type): MethodGeneratorInterface
     {
         $this->returnType = $type;
 
@@ -58,7 +58,7 @@ class MethodGenerator implements MethodGeneratorInterface
 
     public function generate(): string
     {
-        $arguments = ArgumentsStringify::stringify($this->arguments);
+        $arguments = ArgumentsStringify::stringify($this->parameters);
         $comments = CommentStringify::stringify($this->comments);
         $body = $this->bodyGenerator->generate();
         $returnDeclaration = $this->returnType === null ? '' : sprintf(': %s', $this->returnType);
