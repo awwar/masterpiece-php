@@ -2,7 +2,7 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Contract;
 
-use Awwar\MasterpiecePhp\Compiler\Util\ContractName;
+use Awwar\MasterpiecePhp\Config\ContractName;
 
 class Contract
 {

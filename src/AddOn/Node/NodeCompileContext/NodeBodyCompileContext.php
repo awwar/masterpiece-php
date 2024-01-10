@@ -5,7 +5,7 @@ namespace Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext;
 use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 
-class BodyCompileContext
+class NodeBodyCompileContext
 {
     private bool $isSkip = false;
 

@@ -57,13 +57,13 @@ class ClassGenerator implements ClassGeneratorInterface
 
     public function generate(): string
     {
-        $methods = "\r";
+        $methods = "";
 
         foreach ($this->methods as $method) {
             $methods .= PHP_EOL . $method->generate();
         }
 
-        $properties = "\r";
+        $properties = "";
 
         foreach ($this->properties as $name => $typeDefault) {
             [$type, $default] = $typeDefault;

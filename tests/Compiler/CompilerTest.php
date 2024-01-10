@@ -5,8 +5,9 @@ namespace Awwar\MasterpiecePhp\Tests\Compiler;
 use Awwar\MasterpiecePhp\AddOns\BasicNodes\BaseAddon;
 use Awwar\MasterpiecePhp\Compiler\CompileContext;
 use Awwar\MasterpiecePhp\Compiler\Compiler;
-use Awwar\MasterpiecePhp\Compiler\Util\ContractName;
 use Awwar\MasterpiecePhp\Config\Config;
+use Awwar\MasterpiecePhp\Config\ContractName;
+use Awwar\MasterpiecePhp\Config\NodeFullName;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
 use Throwable;
@@ -43,7 +44,7 @@ class CompilerTest extends CaseWithContainer
                 name: 'base_endpoint',
                 type: 'endpoint',
                 params: [
-                    'flow' => 'my_test_flow',
+                    'flow' => new NodeFullName(addonName: 'app', nodePatternName: 'my_test_flow'),
                 ]
             )
         );
@@ -143,42 +144,27 @@ class CompilerTest extends CaseWithContainer
                             'option' => [
                                 'value' => 3,
                             ],
-                            'node'   => [
-                                'addon'   => 'base',
-                                'pattern' => 'number',
-                            ],
+                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'number'),
                         ],
                         'number_node_2'     => [
                             'option' => [
                                 'value' => 0,
                             ],
-                            'node'   => [
-                                'addon'   => 'base',
-                                'pattern' => 'number',
-                            ],
+                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'number'),
                         ],
                         'additional_node_1' => [
                             'option' => [],
-                            'node'   => [
-                                'addon'   => 'base',
-                                'pattern' => 'addition',
-                            ],
+                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'addition'),
                         ],
                         'output'            => [
                             'option' => [],
-                            'node'   => [
-                                'addon'   => 'base',
-                                'pattern' => 'output',
-                            ],
+                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'output'),
                         ],
                         'if_node_1'         => [
                             'option' => [
-                                'condition' => "$0 > 0"
+                                'condition' => "$0 > 0",
                             ],
-                            'node'   => [
-                                'addon'   => 'base',
-                                'pattern' => 'if',
-                            ],
+                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'if'),
                         ],
                     ],
                 ]
@@ -192,14 +178,15 @@ class CompilerTest extends CaseWithContainer
         include_once $settings->getGenerationPath() . '/app_my_test_flow_node.php';
         include_once $settings->getGenerationPath() . '/base_addition_node.php';
         include_once $settings->getGenerationPath() . '/base_integer_contract.php';
+        include_once $settings->getGenerationPath() . '/app_base_endpoint_endpoint.php';
 
-        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\app_my_test_flow_node::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_addition_node::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_integer_contract::class));
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\app_base_endpoint_endpoint::class));
 
         $input = \Awwar\MasterpiecePhp\App\base_integer_contract::cast_from_mixed(10);
 
-        $result = \Awwar\MasterpiecePhp\App\app_my_test_flow_node::execute_94def2b019f4c1e0453cc2c78ec275ba($input);
+        $result = \Awwar\MasterpiecePhp\App\app_base_endpoint_endpoint::execute($input);
 
         self::assertSame(13, $result->getValue());
     }

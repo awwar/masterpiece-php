@@ -6,5 +6,5 @@ use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
 
 interface NodePatternObtainerInterface
 {
-    public function getNodePattern(string $addonName, string $nodeName): NodePattern;
+    public function getNodePattern(string $nodeFullName): NodePattern;
 }

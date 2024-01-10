@@ -1,6 +1,6 @@
 <?php
 
-namespace Awwar\MasterpiecePhp\Compiler\Util;
+namespace Awwar\MasterpiecePhp\Config;
 
 class ExecuteMethodName
 {

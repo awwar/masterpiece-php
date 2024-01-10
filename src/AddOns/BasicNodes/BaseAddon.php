@@ -5,14 +5,15 @@ namespace Awwar\MasterpiecePhp\AddOns\BasicNodes;
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
 use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
 use Awwar\MasterpiecePhp\AddOns\BasicNodes\ContractCasters\MixedToIntegerNode;
-use Awwar\MasterpiecePhp\Compiler\Util\ContractName;
+use Awwar\MasterpiecePhp\App\base_integer_contract;
+use Awwar\MasterpiecePhp\Config\ContractName;
 
 class BaseAddon implements AddOnInterface
 {
@@ -30,6 +31,22 @@ class BaseAddon implements AddOnInterface
 
         $addOnCompileVisitor->setContract($integerContract);
 
+//        $mixedToInteger = new NodePattern(
+//            addonName: self::NAME,
+//            name: 'mixed_to_integer',
+//            input: NodeInputSet::create()
+//                ->push(new NodeInput(name: 'input', type: 'mixed')),
+//            output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
+//            nodeBodyCompileCallback: function (NodeBodyCompileContext $context) {
+//                $context->getMethodBodyGenerator()
+//                    ->raw('if(false === ')->functionCall('is_numeric')->addArgumentAsVariable('input')->end()->raw(') {')->newLineAndTab()
+//                    ->raw("throw new \RuntimeException('Unable to cast not numeric to integer')")->semicolon()->newLineAndTab()
+//                    ->raw('}')->newLineAndTab()
+//                    ->return()->raw('new base_integer_contract(value: (int) ')->variable('input')->raw(')')->semicolon();
+//            }
+//        );
+//        $addOnCompileVisitor->setNodePattern($mixedToInteger);
+
         $addition = new NodePattern(
             addonName: self::NAME,
             name: 'addition',
@@ -37,7 +54,7 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
+            nodeBodyCompileCallback: fn (NodeBodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
                 ->raw('new ' . $integerContract->getFullName() . '(')
                 ->variable('a')->objectAccess()->functionCall('getValue')->end()
@@ -54,7 +71,7 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
+            nodeBodyCompileCallback: fn (NodeBodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
                 ->raw('new ' . $integerContract->getFullName() . '(')
                 ->variable('a')->raw('-')->variable('b')
@@ -69,7 +86,7 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
+            nodeBodyCompileCallback: fn (NodeBodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
                 ->raw('new ' . $integerContract->getFullName() . '(')
                 ->variable('a')->raw('/')->variable('b')
@@ -84,7 +101,7 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'a', type: new ContractName('base', 'integer')))
                 ->push(new NodeInput(name: 'b', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
+            nodeBodyCompileCallback: fn (NodeBodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
                 ->raw('new ' . $integerContract->getFullName() . '(')
                 ->variable('a')->raw('*')->variable('b')
@@ -99,7 +116,7 @@ class BaseAddon implements AddOnInterface
                 ->push(new NodeInput(name: 'num', type: new ContractName('base', 'integer')))
                 ->push(new NodeInput(name: 'exponent', type: new ContractName('base', 'integer'))),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            nodeBodyCompileCallback: fn (BodyCompileContext $context) => $context->getMethodBodyGenerator()
+            nodeBodyCompileCallback: fn (NodeBodyCompileContext $context) => $context->getMethodBodyGenerator()
                 ->return()
                 ->raw('new ' . $integerContract->getFullName() . '(')
                 ->functionCall('pow')->addArgumentAsVariable('num')->addArgumentAsVariable('exponent')
@@ -167,8 +184,6 @@ class BaseAddon implements AddOnInterface
                 $context->getSubcompile()->subcompileSocketCondition($generator, $context->getSocketName(), 1);
 
                 $generator->newLineAndTab()->raw("}");
-
-                $generator->newLineAndTab();
             },
             options: [],
         );

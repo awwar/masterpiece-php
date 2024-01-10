@@ -3,7 +3,7 @@
 namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
@@ -11,6 +11,7 @@ use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\FlowSubcompiler;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
+use Awwar\MasterpiecePhp\Config\NodeFullName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
 #[ForDependencyInjection]
@@ -21,21 +22,25 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
         return 'flow';
     }
 
-    public function prefetch(string $name, array $params, ConfigVisitorInterface $visitor): void
-    {
+    public function compile(
+        string $name,
+        array $params,
+        AddOnCompileVisitorInterface $addOnCompileVisitor,
+        ConfigVisitorInterface $configVisitor
+    ): void {
         foreach ($params['nodes'] as $alias => $nodeSettings) {
-            $visitor->persistNodePatternOption(
+            /** @var NodeFullName $node */
+            $node = $nodeSettings['node'];
+
+            $configVisitor->persistNodePatternOption(
                 flowName: $name,
                 nodeAlias: $alias,
-                nodeAddon: $nodeSettings['node']['addon'],
-                nodePattern: $nodeSettings['node']['pattern'],
+                nodeAddon: $node->getAddonName(),
+                nodePattern: $node->getNodePatternName(),
                 nodeOption: $nodeSettings['option']
             );
         }
-    }
 
-    public function compile(string $name, array $params, AddOnCompileVisitorInterface $visitor): void
-    {
         $input = NodeInputSet::create();
         $output = new NodeOutput(name: 'value', type: 'void');
 
@@ -63,13 +68,13 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             name: $name,
             input: $input,
             output: $output,
-            nodeBodyCompileCallback: function (BodyCompileContext $bodyCompileContext) use ($params, $name) {
+            nodeBodyCompileCallback: function (NodeBodyCompileContext $bodyCompileContext) use ($params, $name) {
                 $subcompiler = new FlowSubcompiler($params, $name, $bodyCompileContext->getNodePatternObtain());
 
                 $subcompiler->subcompileSocketCondition($bodyCompileContext->getMethodBodyGenerator(), 'start', 0);
             },
             options: []
         );
-        $visitor->setNodePattern($node);
+        $addOnCompileVisitor->setNodePattern($node);
     }
 }

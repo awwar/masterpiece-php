@@ -6,7 +6,8 @@ use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContex
 use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
 use Awwar\MasterpiecePhp\AddOn\SubcompileInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
-use Awwar\MasterpiecePhp\Compiler\Util\ExecuteMethodName;
+use Awwar\MasterpiecePhp\Config\ExecuteMethodName;
+use Awwar\MasterpiecePhp\Config\NodeFullName;
 use RuntimeException;
 
 class FlowSubcompiler implements SubcompileInterface
@@ -32,7 +33,9 @@ class FlowSubcompiler implements SubcompileInterface
         }
         $this->visitedConditions[$key] = true;
 
-        $socketName = $this->params['sockets'][$nextSocketName]['transition'][$condition]['socket'] ?? throw new RuntimeException("Condition $condition for socket $nextSocketName not found!");
+        $socketName = $this->params['sockets'][$nextSocketName]['transition'][$condition]['socket'] ?? throw new RuntimeException(
+            "Condition $condition for socket $nextSocketName not found!"
+        );
 
         $socket = $this->params['sockets'][$socketName];
         $nodeAlias = $socket['node_alias'];
@@ -43,10 +46,11 @@ class FlowSubcompiler implements SubcompileInterface
             $args[] = $inputSettings['variable'] ?? $inputSettings['node_alias'];
         }
 
-        $nodeSettings = $this->params['nodes'][$nodeAlias]['node'];
+        /** @var NodeFullName $nodeFullName */
+        $nodeFullName = $this->params['nodes'][$nodeAlias]['node'];
         $options = $this->params['nodes'][$nodeAlias]['option'] ?? [];
 
-        $node = $this->nodePatternObtainer->getNodePattern($nodeSettings['addon'], $nodeSettings['pattern']);
+        $node = $this->nodePatternObtainer->getNodePattern((string) $nodeFullName);
 
         $methodName = new ExecuteMethodName(flowName: $this->flowName, nodeAlias: $socket['node_alias']);
 
@@ -62,7 +66,11 @@ class FlowSubcompiler implements SubcompileInterface
 
         $node->compileFlowFragment($fragmentCompileContext);
 
-        $methodBodyGenerator->newLineAndTab();
+        $nextTransitions = $socket['transition'] ?? [];
+
+        if (count($nextTransitions) > 0) {
+            $methodBodyGenerator->newLineAndTab();
+        }
 
         foreach ($socket['transition'] ?? [] as $i => $transition) {
             $this->subcompileSocketCondition($methodBodyGenerator, $socketName, $i);

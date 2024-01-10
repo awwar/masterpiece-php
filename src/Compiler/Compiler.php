@@ -2,12 +2,12 @@
 
 namespace Awwar\MasterpiecePhp\Compiler;
 
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
-use Awwar\MasterpiecePhp\AddOns\App\AppAddon;
+use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointCompileContext\EndpointBodyCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
 use Awwar\MasterpiecePhp\CodeGenerator\ClassGenerator;
 use Awwar\MasterpiecePhp\Compiler\AddOnCompiler\AddOnCompileVisitor;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
-use Awwar\MasterpiecePhp\Compiler\Util\ExecuteMethodName;
+use Awwar\MasterpiecePhp\Config\ExecuteMethodName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 
@@ -22,39 +22,24 @@ class Compiler
 
     public function compile(CompileContext $compileContext): void
     {
-        // 1 scout configs
-        // 2 scout addons
-        // 3 build app addon
-        // 4 compile addons
         $configVisitor = new ConfigVisitor();
 
-        foreach ($compileContext->getConfigs() as $config) {
-            $this
-                ->factory
-                ->create($config->getType())
-                ->prefetch($config->getName(), $config->getParams(), $configVisitor);
-        }
-
-        $appAddonVisitor = new AddOnCompileVisitor();
+        $addOnCompileVisitor = new AddOnCompileVisitor();
 
         foreach ($compileContext->getConfigs() as $config) {
             $this
                 ->factory
                 ->create($config->getType())
-                ->compile($config->getName(), $config->getParams(), $appAddonVisitor);
+                ->compile($config->getName(), $config->getParams(), $addOnCompileVisitor, $configVisitor);
         }
-
-        $compileContext->addAddOn(new AppAddon($appAddonVisitor));
-
-        $visitor = new AddOnCompileVisitor();
 
         foreach ($compileContext->getAddOns() as $addOn) {
-            $addOn->compile($visitor);
+            $addOn->compile($addOnCompileVisitor);
         }
 
         $classVisitor = new ClassVisitor();
 
-        foreach ($visitor->getNodesPatterns() as $nodePattern) {
+        foreach ($addOnCompileVisitor->getNodesPatterns() as $nodePattern) {
             if ($configVisitor->isNodeDemand($nodePattern->getAddonName(), $nodePattern->getName()) === false) {
                 continue;
             }
@@ -87,10 +72,10 @@ class Compiler
                     ->addComment('Alias: ' . $option['node_alias'])
                     ->setReturnType($outputType);
 
-                $bodyCompileContext = new BodyCompileContext(
+                $bodyCompileContext = new NodeBodyCompileContext(
                     $method->getBodyGenerator(),
                     $option['settings'],
-                    $visitor
+                    $addOnCompileVisitor
                 );
 
                 $nodePattern->compileNodeBody($bodyCompileContext);
@@ -113,7 +98,7 @@ class Compiler
             $classVisitor->createClass($nodeFullName, $classGenerator->generate());
         }
 
-        foreach ($visitor->getContracts() as $contract) {
+        foreach ($addOnCompileVisitor->getContracts() as $contract) {
             $contractFullName = $contract->getFullName();
 
             $classGenerator = new ClassGenerator(name: $contractFullName);
@@ -154,6 +139,24 @@ class Compiler
             }
 
             $classVisitor->createClass($contractFullName, $classGenerator->generate());
+        }
+
+        foreach ($addOnCompileVisitor->getEndpointPatterns() as $endpointPattern) {
+            $endpointFullName = $endpointPattern->getFullName();
+
+            $classGenerator = new ClassGenerator(name: $endpointFullName);
+            $classGenerator->setNamespace('Awwar\MasterpiecePhp\App')
+                ->addComment('Addon: ' . $endpointPattern->getAddonName())
+                ->addComment('Endpoint: ' . $endpointPattern->getName());
+
+            $context = new EndpointBodyCompileContext(
+                $classGenerator,
+                $addOnCompileVisitor
+            );
+
+            $endpointPattern->compileEndpointBody($context);
+
+            $classVisitor->createClass($endpointFullName, $classGenerator->generate());
         }
 
         $path = $compileContext->getGenerationPath();

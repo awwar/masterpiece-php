@@ -2,9 +2,9 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Node;
 
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\BodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContext;
-use Awwar\MasterpiecePhp\Compiler\Util\NodeName;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
+use Awwar\MasterpiecePhp\Config\NodeFullName;
 use Closure;
 
 class NodePattern
@@ -18,7 +18,7 @@ class NodePattern
         private ?Closure $flowFragmentCompileCallback = null,
         private array $options = []
     ) {
-        $this->nodeBodyCompileCallback ??= fn (BodyCompileContext $context) => $context->skip();
+        $this->nodeBodyCompileCallback ??= fn (NodeBodyCompileContext $context) => $context->skip();
 
         $this->flowFragmentCompileCallback ??= function (FlowFragmentCompileContext $context) use ($name) {
             $methodCall = $context->getMethodBodyGenerator()
@@ -44,7 +44,7 @@ class NodePattern
         return $this->output;
     }
 
-    public function compileNodeBody(BodyCompileContext $context): void
+    public function compileNodeBody(NodeBodyCompileContext $context): void
     {
         call_user_func($this->nodeBodyCompileCallback, $context);
     }
@@ -56,7 +56,7 @@ class NodePattern
 
     public function getFullName(): string
     {
-        return new NodeName($this->addonName, $this->name);
+        return new NodeFullName($this->addonName, $this->name);
     }
 
     public function getName(): string

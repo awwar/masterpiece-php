@@ -13,6 +13,4 @@ interface ClassGeneratorInterface
     public function addMethod(string $name): MethodGeneratorInterface;
 
     public function addProperty(string $name, string $type, string $default): ClassGeneratorInterface;
-
-    public function generate(): string;
 }
