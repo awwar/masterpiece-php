@@ -6,5 +6,9 @@ use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 
 interface SubcompileInterface
 {
-    public function subcompileSocketCondition(MethodBodyGeneratorInterface $methodBodyGenerator, string $nextSocketName, int $condition): void;
+    public function subcompileSocketCondition(
+        MethodBodyGeneratorInterface $methodBodyGenerator,
+        string $nextSocketName,
+        int $condition
+    ): void;
 }

@@ -151,13 +151,16 @@ class Compiler
 
             $options = $configVisitor->getEndpointOptions($endpointFullName);
 
-            $context = new EndpointBodyCompileContext(
-                $classGenerator,
-                $addOnCompileVisitor,
-                $options
-            );
+            foreach ($options as $endpointName => $params) {
+                $context = new EndpointBodyCompileContext(
+                    $classGenerator,
+                    $addOnCompileVisitor,
+                    $endpointName,
+                    $params
+                );
 
-            $endpointTemplate->compileEndpointBody($context);
+                $endpointTemplate->compileEndpointBody($context);
+            }
 
             $classVisitor->createClass($endpointFullName, $classGenerator->generate());
         }

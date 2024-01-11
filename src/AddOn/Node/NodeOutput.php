@@ -8,6 +8,11 @@ class NodeOutput
     {
     }
 
+    public static function noOutput(): self
+    {
+        return new self('', null, false);
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -21,10 +26,5 @@ class NodeOutput
     public function isHasOutput(): bool
     {
         return $this->hasOutput;
-    }
-
-    public static function noOutput(): self
-    {
-        return new self('', null, false);
     }
 }

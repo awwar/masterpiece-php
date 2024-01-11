@@ -9,8 +9,11 @@ class NodeBodyCompileContext
 {
     private bool $isSkip = false;
 
-    public function __construct(private MethodBodyGeneratorInterface $methodBodyGenerator, private array $options, private NodeTemplateObtainerInterface $nodeTemplateObtain)
-    {
+    public function __construct(
+        private MethodBodyGeneratorInterface $methodBodyGenerator,
+        private array $options,
+        private NodeTemplateObtainerInterface $nodeTemplateObtain
+    ) {
     }
 
     public function getMethodBodyGenerator(): MethodBodyGeneratorInterface

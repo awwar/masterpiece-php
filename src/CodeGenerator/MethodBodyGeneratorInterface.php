@@ -10,8 +10,6 @@ interface MethodBodyGeneratorInterface
 
     public function return(): MethodBodyGeneratorInterface;
 
-    public function statement(string $statement): MethodBodyGeneratorInterface;
-
     public function variable(string $name): MethodBodyGeneratorInterface;
 
     public function assign(): MethodBodyGeneratorInterface;
@@ -29,8 +27,6 @@ interface MethodBodyGeneratorInterface
     public function newLine(): MethodBodyGeneratorInterface;
 
     public function newLineAndTab(): MethodBodyGeneratorInterface;
-
-    public function twoStatementsCartage(string $firstStatement, string $secondStatement): MethodBodyGeneratorInterface;
 
     public function rightTrim(string $substring): MethodBodyGeneratorInterface;
 

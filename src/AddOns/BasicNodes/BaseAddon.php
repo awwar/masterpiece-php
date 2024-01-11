@@ -7,14 +7,13 @@ use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
 use Awwar\MasterpiecePhp\AddOn\Contract\ContractTemplate;
 use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointCompileContext\EndpointBodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointTemplate;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeFragmentCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeFragmentCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeTemplate;
 use Awwar\MasterpiecePhp\AddOns\BasicNodes\ContractCasters\MixedToIntegerNode;
-use Awwar\MasterpiecePhp\App\base_integer_contract;
 use Awwar\MasterpiecePhp\Config\ContractName;
 use Awwar\MasterpiecePhp\Config\ExecuteMethodName;
 use Awwar\MasterpiecePhp\Config\NodeFullName;
@@ -196,37 +195,38 @@ class BaseAddon implements AddOnInterface
         $endpoint = new EndpointTemplate(
             addonName: self::NAME,
             name: 'wrap',
-            nodeBodyCompileCallback: function (EndpointBodyCompileContext $context) {
-                foreach ($context->getOptions() as $endpointName => $params) {
-                    /** @var NodeFullName $nodeFullName */
-                    $nodeFullName = $params['node'];
+            endpointBodyCompileCallback: function (EndpointBodyCompileContext $context) {
+                /** @var NodeFullName $nodeFullName */
+                $nodeFullName = $context->getParams()['node'];
 
-                    $executeMethodName = new ExecuteMethodName($nodeFullName->getNodeTemplateName(), $nodeFullName->getNodeTemplateName());
+                $executeMethodName = new ExecuteMethodName(
+                    $nodeFullName->getNodeTemplateName(),
+                    $nodeFullName->getNodeTemplateName()
+                );
 
-                    $method = $context->getClassGenerator()->addMethod('execute_for_' . $endpointName)->makeStatic();
+                $method = $context->getClassGenerator()
+                    ->addMethod('execute_for_' . $context->getEndpointName())->makeStatic();
 
-                    $nodeTemplate = $context->getNodeTemplateObtainer()->getNodeTemplate((string) $nodeFullName);
+                $nodeTemplate = $context->getNodeTemplateObtainer()->getNodeTemplate((string) $nodeFullName);
 
-                    foreach ($nodeTemplate->getInput() as $input) {
-                        $method->addParameter($input->getName(), $input->getType());
-                    }
-
-                    if ($nodeTemplate->getOutput()->isHasOutput()) {
-                        $method->setReturnType($nodeTemplate->getOutput()->getType());
-                    } else {
-                        $method->setReturnType('void');
-                    }
-
-                    $arguments = $method->getBodyGenerator()->return()->constant((string) $nodeFullName)->staticAccess()->functionCall(
-                        $executeMethodName
-                    );
-
-                    foreach ($nodeTemplate->getInput() as $input) {
-                        $arguments->addArgumentAsVariable($input->getName());
-                    }
-
-                    $arguments->end()->semicolon();
+                foreach ($nodeTemplate->getInput() as $input) {
+                    $method->addParameter($input->getName(), $input->getType());
                 }
+
+                if ($nodeTemplate->getOutput()->isHasOutput()) {
+                    $method->setReturnType($nodeTemplate->getOutput()->getType());
+                } else {
+                    $method->setReturnType('void');
+                }
+
+                $arguments = $method->getBodyGenerator()
+                    ->return()->constant((string) $nodeFullName)->staticAccess()->functionCall($executeMethodName);
+
+                foreach ($nodeTemplate->getInput() as $input) {
+                    $arguments->addArgumentAsVariable($input->getName());
+                }
+
+                $arguments->end()->semicolon();
             }
         );
 

@@ -11,7 +11,7 @@ class EndpointTemplate
     public function __construct(
         private string $addonName,
         private string $name,
-        private Closure $nodeBodyCompileCallback,
+        private Closure $endpointBodyCompileCallback,
     ) {
     }
 
@@ -32,6 +32,6 @@ class EndpointTemplate
 
     public function compileEndpointBody(EndpointBodyCompileContext $context): void
     {
-        call_user_func($this->nodeBodyCompileCallback, $context);
+        call_user_func($this->endpointBodyCompileCallback, $context);
     }
 }

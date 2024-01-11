@@ -36,8 +36,11 @@ class ConfigVisitor implements ConfigVisitorInterface
         }
     }
 
-    public function persistEndpointOption(string $endpointPatternFullName, string $endpointName, array $endpointOption): void
-    {
+    public function persistEndpointOption(
+        string $endpointPatternFullName,
+        string $endpointName,
+        array $endpointOption
+    ): void {
         $this->endpointOptions[$endpointPatternFullName][$endpointName] = $endpointOption;
     }
 

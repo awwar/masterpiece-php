@@ -34,8 +34,8 @@ class NodeSubcompiler implements SubcompileInterface
         $this->visitedConditions[$key] = true;
 
         $socketName = $this->params['sockets'][$nextSocketName]['transition'][$condition]['socket'] ?? throw new RuntimeException(
-            "Condition $condition for socket $nextSocketName not found!"
-        );
+                "Condition $condition for socket $nextSocketName not found!"
+            );
 
         $socket = $this->params['sockets'][$socketName];
         $nodeAlias = $socket['node_alias'];

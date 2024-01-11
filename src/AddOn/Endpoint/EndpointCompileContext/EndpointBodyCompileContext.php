@@ -10,7 +10,8 @@ class EndpointBodyCompileContext
     public function __construct(
         private ClassGeneratorInterface $classGenerator,
         private NodeTemplateObtainerInterface $nodeTemplateObtainer,
-        private array $options
+        private string $endpointName,
+        private array $params
     ) {
     }
 
@@ -24,8 +25,13 @@ class EndpointBodyCompileContext
         return $this->nodeTemplateObtainer;
     }
 
-    public function getOptions(): array
+    public function getEndpointName(): string
     {
-        return $this->options;
+        return $this->endpointName;
+    }
+
+    public function getParams(): array
+    {
+        return $this->params;
     }
 }

@@ -10,13 +10,6 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
     {
     }
 
-    public function raw(string $statement): MethodBodyGeneratorInterface
-    {
-        $this->body .= $statement;
-
-        return $this;
-    }
-
     public function rightTrim(string $substring): MethodBodyGeneratorInterface
     {
         $this->body = rtrim($this->body, $substring);
@@ -29,28 +22,16 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
         return $this->raw('return ');
     }
 
+    public function raw(string $statement): MethodBodyGeneratorInterface
+    {
+        $this->body .= $statement;
+
+        return $this;
+    }
+
     public function comment(string $message): MethodBodyGeneratorInterface
     {
         return $this->raw('//' . $message);
-    }
-
-    public function statement(string $statement): MethodBodyGeneratorInterface
-    {
-        if (false === str_ends_with($statement, ';')) {
-            $statement .= ';';
-        }
-
-        return $this->raw($statement);
-    }
-
-    public function twoStatementsCartage(string $firstStatement, string $secondStatement): MethodBodyGeneratorInterface
-    {
-        return $this->statement(sprintf('[%s, %s]', $firstStatement, $secondStatement));
-    }
-
-    public function newLine(): MethodBodyGeneratorInterface
-    {
-        return $this->raw(PHP_EOL);
     }
 
     public function newLineAndTab(): MethodBodyGeneratorInterface
@@ -58,6 +39,11 @@ class MethodBodyGenerator implements MethodBodyGeneratorInterface
         $this->newLine();
 
         return $this->raw("\t");
+    }
+
+    public function newLine(): MethodBodyGeneratorInterface
+    {
+        return $this->raw(PHP_EOL);
     }
 
     public function variable(string $name): MethodBodyGeneratorInterface
