@@ -39,37 +39,37 @@ class Compiler
 
         $classVisitor = new ClassVisitor();
 
-        foreach ($addOnCompileVisitor->getNodesPatterns() as $nodePattern) {
-            if ($configVisitor->isNodeDemand($nodePattern->getAddonName(), $nodePattern->getName()) === false) {
+        foreach ($addOnCompileVisitor->getNodeTemplates() as $nodeTemplate) {
+            if ($configVisitor->isNodeDemand($nodeTemplate->getAddonName(), $nodeTemplate->getName()) === false) {
                 continue;
             }
 
-            $nodeFullName = $nodePattern->getFullName();
+            $nodeFullName = $nodeTemplate->getFullName();
 
             $classGenerator = new ClassGenerator(name: $nodeFullName);
             $classGenerator
                 ->setNamespace('Awwar\MasterpiecePhp\App')
-                ->addComment('Addon: ' . $nodePattern->getAddonName())
-                ->addComment('Node: ' . $nodePattern->getName());
+                ->addComment('Addon: ' . $nodeTemplate->getAddonName())
+                ->addComment('NodeTemplate: ' . $nodeTemplate->getName());
 
-            $outputType = $nodePattern->getOutput()->getType();
+            $outputType = $nodeTemplate->getOutput()->getType();
 
-            if ($nodePattern->getOutput()->isHasOutput() === false) {
+            if ($nodeTemplate->getOutput()->isHasOutput() === false) {
                 $outputType = 'void';
             }
 
-            $options = $configVisitor->getNodeOptions($nodePattern->getAddonName(), $nodePattern->getName());
+            $options = $configVisitor->getNodeOptions($nodeTemplate->getAddonName(), $nodeTemplate->getName());
 
             $methodsCount = 0;
 
             foreach ($options as $option) {
-                $methodName = new ExecuteMethodName(flowName: $option['flow_name'], nodeAlias: $option['node_alias']);
+                $methodName = new ExecuteMethodName(nodeName: $option['node_name'], nodeAlias: $option['node_alias']);
 
                 $method = $classGenerator
                     ->addMethod($methodName)
                     ->makeStatic()
-                    ->addComment('Flow: ' . $option['flow_name'])
                     ->addComment('Alias: ' . $option['node_alias'])
+                    ->addComment('NodeTemplate: ' . $option['node_name'])
                     ->setReturnType($outputType);
 
                 $bodyCompileContext = new NodeBodyCompileContext(
@@ -78,7 +78,7 @@ class Compiler
                     $addOnCompileVisitor
                 );
 
-                $nodePattern->compileNodeBody($bodyCompileContext);
+                $nodeTemplate->compileNodeBody($bodyCompileContext);
 
                 if ($bodyCompileContext->isSkip()) {
                     continue;
@@ -86,7 +86,7 @@ class Compiler
 
                 $methodsCount++;
 
-                foreach ($nodePattern->getInput() as $input) {
+                foreach ($nodeTemplate->getInput() as $input) {
                     $method->addParameter(name: $input->getName(), type: $input->getType());
                 }
             }
@@ -98,13 +98,13 @@ class Compiler
             $classVisitor->createClass($nodeFullName, $classGenerator->generate());
         }
 
-        foreach ($addOnCompileVisitor->getContracts() as $contract) {
+        foreach ($addOnCompileVisitor->getContractTemplates() as $contract) {
             $contractFullName = $contract->getFullName();
 
             $classGenerator = new ClassGenerator(name: $contractFullName);
             $classGenerator->setNamespace('Awwar\MasterpiecePhp\App')
                 ->addComment('Addon: ' . $contract->getAddonName())
-                ->addComment('Contract: ' . $contract->getName());
+                ->addComment('ContractTemplate: ' . $contract->getName());
 
             $classGenerator->addProperty('value', 'int', '');
 
@@ -141,20 +141,20 @@ class Compiler
             $classVisitor->createClass($contractFullName, $classGenerator->generate());
         }
 
-        foreach ($addOnCompileVisitor->getEndpointPatterns() as $endpointPattern) {
-            $endpointFullName = $endpointPattern->getFullName();
+        foreach ($addOnCompileVisitor->getEndpointTemplates() as $endpointTemplate) {
+            $endpointFullName = $endpointTemplate->getFullName();
 
             $classGenerator = new ClassGenerator(name: $endpointFullName);
             $classGenerator->setNamespace('Awwar\MasterpiecePhp\App')
-                ->addComment('Addon: ' . $endpointPattern->getAddonName())
-                ->addComment('Endpoint: ' . $endpointPattern->getName());
+                ->addComment('Addon: ' . $endpointTemplate->getAddonName())
+                ->addComment('EndpointTemplate: ' . $endpointTemplate->getName());
 
             $context = new EndpointBodyCompileContext(
                 $classGenerator,
                 $addOnCompileVisitor
             );
 
-            $endpointPattern->compileEndpointBody($context);
+            $endpointTemplate->compileEndpointBody($context);
 
             $classVisitor->createClass($endpointFullName, $classGenerator->generate());
         }

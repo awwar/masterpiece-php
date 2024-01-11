@@ -4,9 +4,9 @@ namespace Awwar\MasterpiecePhp\Compiler;
 
 interface ConfigVisitorInterface
 {
-    public function persistNodePatternOption(string $flowName, string $nodeAlias, string $nodeAddon, string $nodePattern, array $nodeOption): void;
+    public function persistNodeTemplateOption(string $nodeName, string $nodeAlias, string $nodeAddon, string $nodeTemplate, array $nodeOption): void;
 
-    public function isNodeDemand(string $nodeAddon, string $nodePattern): bool;
+    public function isNodeDemand(string $nodeAddon, string $nodeTemplate): bool;
 
-    public function getNodeOptions(string $nodeAddon, string $nodePattern): iterable;
+    public function getNodeOptions(string $nodeAddon, string $nodeTemplate): iterable;
 }

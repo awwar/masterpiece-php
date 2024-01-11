@@ -44,15 +44,15 @@ class CompilerTest extends CaseWithContainer
                 name: 'base_endpoint',
                 type: 'endpoint',
                 params: [
-                    'flow' => new NodeFullName(addonName: 'app', nodePatternName: 'my_test_flow'),
+                    'node' => new NodeFullName(addonName: 'app', nodeTemplateName: 'my_test_node'),
                 ]
             )
         );
 
         $settings->addConfig(
             new Config(
-                name: 'my_test_flow',
-                type: 'flow',
+                name: 'my_test_node',
+                type: 'node',
                 params: [
                     'input'   => [
                         [
@@ -144,27 +144,27 @@ class CompilerTest extends CaseWithContainer
                             'option' => [
                                 'value' => 3,
                             ],
-                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'number'),
+                            'node'   => new NodeFullName(addonName: 'base', nodeTemplateName: 'number'),
                         ],
                         'number_node_2'     => [
                             'option' => [
                                 'value' => 0,
                             ],
-                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'number'),
+                            'node'   => new NodeFullName(addonName: 'base', nodeTemplateName: 'number'),
                         ],
                         'additional_node_1' => [
                             'option' => [],
-                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'addition'),
+                            'node'   => new NodeFullName(addonName: 'base', nodeTemplateName: 'addition'),
                         ],
                         'output'            => [
                             'option' => [],
-                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'output'),
+                            'node'   => new NodeFullName(addonName: 'base', nodeTemplateName: 'output'),
                         ],
                         'if_node_1'         => [
                             'option' => [
                                 'condition' => "$0 > 0",
                             ],
-                            'node'   => new NodeFullName(addonName: 'base', nodePatternName: 'if'),
+                            'node'   => new NodeFullName(addonName: 'base', nodeTemplateName: 'if'),
                         ],
                     ],
                 ]
@@ -175,7 +175,7 @@ class CompilerTest extends CaseWithContainer
 
         self::assertDirectoryExists($settings->getGenerationPath());
 
-        include_once $settings->getGenerationPath() . '/app_my_test_flow_node.php';
+        include_once $settings->getGenerationPath() . '/app_my_test_node_node.php';
         include_once $settings->getGenerationPath() . '/base_addition_node.php';
         include_once $settings->getGenerationPath() . '/base_integer_contract.php';
         include_once $settings->getGenerationPath() . '/app_base_endpoint_endpoint.php';

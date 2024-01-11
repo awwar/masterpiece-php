@@ -4,13 +4,13 @@ namespace Awwar\MasterpiecePhp\Config;
 
 class NodeFullName
 {
-    public function __construct(private string $addonName, private string $nodePatternName)
+    public function __construct(private string $addonName, private string $nodeTemplateName)
     {
     }
 
     public function __toString(): string
     {
-        return sprintf('%s_%s_node', $this->addonName, $this->nodePatternName);
+        return sprintf('%s_%s_node', $this->addonName, $this->nodeTemplateName);
     }
 
     public function getAddonName(): string
@@ -18,8 +18,8 @@ class NodeFullName
         return $this->addonName;
     }
 
-    public function getNodePatternName(): string
+    public function getNodeTemplateName(): string
     {
-        return $this->nodePatternName;
+        return $this->nodeTemplateName;
     }
 }

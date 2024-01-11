@@ -4,7 +4,7 @@ namespace Awwar\MasterpiecePhp\AddOn\Contract;
 
 use Awwar\MasterpiecePhp\Config\ContractName;
 
-class Contract
+class ContractTemplate
 {
     private array $castFrom = [];
 

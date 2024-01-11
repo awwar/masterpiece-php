@@ -2,14 +2,14 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext;
 
-use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
+use Awwar\MasterpiecePhp\AddOn\NodeTemplateObtainerInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 
 class NodeBodyCompileContext
 {
     private bool $isSkip = false;
 
-    public function __construct(private MethodBodyGeneratorInterface $methodBodyGenerator, private array $options, private NodePatternObtainerInterface $nodePatternObtain)
+    public function __construct(private MethodBodyGeneratorInterface $methodBodyGenerator, private array $options, private NodeTemplateObtainerInterface $nodeTemplateObtain)
     {
     }
 
@@ -33,8 +33,8 @@ class NodeBodyCompileContext
         return $this->isSkip;
     }
 
-    public function getNodePatternObtain(): NodePatternObtainerInterface
+    public function getNodeTemplateObtain(): NodeTemplateObtainerInterface
     {
-        return $this->nodePatternObtain;
+        return $this->nodeTemplateObtain;
     }
 }

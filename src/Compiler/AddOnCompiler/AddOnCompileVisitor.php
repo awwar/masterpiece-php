@@ -3,80 +3,79 @@
 namespace Awwar\MasterpiecePhp\Compiler\AddOnCompiler;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
-use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
-use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointPattern;
-use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
-use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
-use Awwar\MasterpiecePhp\Config\NodeFullName;
+use Awwar\MasterpiecePhp\AddOn\Contract\ContractTemplate;
+use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointTemplate;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeTemplate;
+use Awwar\MasterpiecePhp\AddOn\NodeTemplateObtainerInterface;
 use RuntimeException;
 
-class AddOnCompileVisitor implements AddOnCompileVisitorInterface, NodePatternObtainerInterface
+class AddOnCompileVisitor implements AddOnCompileVisitorInterface, NodeTemplateObtainerInterface
 {
-    private array $nodePatterns = [];
+    private array $nodeTemplates = [];
 
-    private array $contracts = [];
+    private array $contractTemplates = [];
 
-    private array $endpointPatterns = [];
+    private array $endpointTemplates = [];
 
-    public function setNodePattern(NodePattern $nodePattern): void
+    public function setNodeTemplate(NodeTemplate $nodeTemplate): void
     {
-        $name = $nodePattern->getFullName();
+        $name = $nodeTemplate->getFullName();
 
-        if (isset($this->nodePatterns[$name])) {
+        if (isset($this->nodeTemplates[$name])) {
             throw new RuntimeException(sprintf('Node %s already declared', $name));
         }
 
-        $this->nodePatterns[$name] = $nodePattern;
+        $this->nodeTemplates[$name] = $nodeTemplate;
     }
 
-    public function getNodePattern(string $nodeFullName): NodePattern
+    public function getNodeTemplate(string $nodeFullName): NodeTemplate
     {
-        return $this->nodePatterns[$nodeFullName];
+        return $this->nodeTemplates[$nodeFullName];
     }
 
     /**
-     * @return NodePattern[]
+     * @return NodeTemplate[]
      */
-    public function getNodesPatterns(): array
+    public function getNodeTemplates(): array
     {
-        return array_values($this->nodePatterns);
+        return array_values($this->nodeTemplates);
     }
 
-    public function setContract(Contract $contract): void
+    public function setContractTemplate(ContractTemplate $contractTemplate): void
     {
-        $name = $contract->getFullName();
+        $name = $contractTemplate->getFullName();
 
-        if (isset($this->contracts[$name])) {
-            throw new RuntimeException(sprintf('Contract %s already declared', $name));
+        if (isset($this->contractTemplates[$name])) {
+            throw new RuntimeException(sprintf('ContractTemplate %s already declared', $name));
         }
 
-        $this->contracts[$name] = $contract;
+        $this->contractTemplates[$name] = $contractTemplate;
     }
 
     /**
-     * @return Contract[]
+     * @return ContractTemplate[]
      */
-    public function getContracts(): array
+    public function getContractTemplates(): array
     {
-        return array_values($this->contracts);
+        return array_values($this->contractTemplates);
     }
 
-    public function setEndpointPattern(EndpointPattern $endpointPattern): void
+    public function setEndpointTemplate(EndpointTemplate $endpointTemplate): void
     {
-        $name = $endpointPattern->getFullName();
+        $name = $endpointTemplate->getFullName();
 
-        if (isset($this->endpointPatterns[$name])) {
+        if (isset($this->endpointTemplates[$name])) {
             throw new RuntimeException(sprintf('Endpoint %s already declared', $name));
         }
 
-        $this->endpointPatterns[$name] = $endpointPattern;
+        $this->endpointTemplates[$name] = $endpointTemplate;
     }
 
     /**
-     * @return EndpointPattern[]
+     * @return EndpointTemplate[]
      */
-    public function getEndpointPatterns(): array
+    public function getEndpointTemplates(): array
     {
-        return array_values($this->endpointPatterns);
+        return array_values($this->endpointTemplates);
     }
 }

@@ -4,7 +4,7 @@ namespace Awwar\MasterpiecePhp\Tests\Compiler\AppAddOnCompiler;
 
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\ContractCompileStrategy;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\EndpointCompileStrategy;
-use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\FlowCompileStrategy;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy\NodeCompileStrategy;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyFactory;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
 
@@ -15,7 +15,7 @@ class StrategyFactoryTest extends CaseWithContainer
         return [
             ['contract', ContractCompileStrategy::class],
             ['endpoint', EndpointCompileStrategy::class],
-            ['flow', FlowCompileStrategy::class],
+            ['node', NodeCompileStrategy::class],
         ];
     }
 

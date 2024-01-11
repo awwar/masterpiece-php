@@ -4,7 +4,7 @@ namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\Strategy;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointCompileContext\EndpointBodyCompileContext;
-use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointPattern;
+use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointTemplate;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Config\ExecuteMethodName;
@@ -26,35 +26,35 @@ class EndpointCompileStrategy implements ConfigCompileStrategyInterface
         ConfigVisitorInterface $configVisitor
     ): void {
         /** @var NodeFullName $node */
-        $node = $params['flow'];
+        $node = $params['node'];
 
-        $configVisitor->persistNodePatternOption(
-            flowName: $node->getNodePatternName(),
-            nodeAlias: $node->getNodePatternName(),
+        $configVisitor->persistNodeTemplateOption(
+            nodeName: $node->getNodeTemplateName(),
+            nodeAlias: $node->getNodeTemplateName(),
             nodeAddon: $node->getAddonName(),
-            nodePattern: $node->getNodePatternName(),
+            nodeTemplate: $node->getNodeTemplateName(),
             nodeOption: []
         );
 
-        $endpoint = new EndpointPattern(
+        $endpoint = new EndpointTemplate(
             addonName: 'app',
             name: $name,
             nodeBodyCompileCallback: function (EndpointBodyCompileContext $context) use ($params) {
                 /** @var NodeFullName $nodeFullName */
-                $nodeFullName = $params['flow'];
+                $nodeFullName = $params['node'];
 
-                $executeMethodName = new ExecuteMethodName($nodeFullName->getNodePatternName(), $nodeFullName->getNodePatternName());
+                $executeMethodName = new ExecuteMethodName($nodeFullName->getNodeTemplateName(), $nodeFullName->getNodeTemplateName());
 
                 $method = $context->getClassGenerator()->addMethod('execute')->makeStatic();
 
-                $nodePattern = $context->getNodePatternObtainer()->getNodePattern((string) $nodeFullName);
+                $nodeTemplate = $context->getNodeTemplateObtainer()->getNodeTemplate((string) $nodeFullName);
 
-                foreach ($nodePattern->getInput() as $input) {
+                foreach ($nodeTemplate->getInput() as $input) {
                     $method->addParameter($input->getName(), $input->getType());
                 }
 
-                if ($nodePattern->getOutput()->isHasOutput()) {
-                    $method->setReturnType($nodePattern->getOutput()->getType());
+                if ($nodeTemplate->getOutput()->isHasOutput()) {
+                    $method->setReturnType($nodeTemplate->getOutput()->getType());
                 } else {
                     $method->setReturnType('void');
                 }
@@ -63,7 +63,7 @@ class EndpointCompileStrategy implements ConfigCompileStrategyInterface
                     $executeMethodName
                 );
 
-                foreach ($nodePattern->getInput() as $input) {
+                foreach ($nodeTemplate->getInput() as $input) {
                     $arguments->addArgumentAsVariable($input->getName());
                 }
 
@@ -71,6 +71,6 @@ class EndpointCompileStrategy implements ConfigCompileStrategyInterface
             }
         );
 
-        $addOnCompileVisitor->setEndpointPattern($endpoint);
+        $addOnCompileVisitor->setEndpointTemplate($endpoint);
     }
 }

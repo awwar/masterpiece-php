@@ -6,27 +6,27 @@ class ConfigVisitor implements ConfigVisitorInterface
 {
     private array $nodesSettings = [];
 
-    public function persistNodePatternOption(
-        string $flowName,
+    public function persistNodeTemplateOption(
+        string $nodeName,
         string $nodeAlias,
         string $nodeAddon,
-        string $nodePattern,
+        string $nodeTemplate,
         array $nodeOption
     ): void {
-        $this->nodesSettings[$nodeAddon][$nodePattern][$flowName][$nodeAlias] = $nodeOption;
+        $this->nodesSettings[$nodeAddon][$nodeTemplate][$nodeName][$nodeAlias] = $nodeOption;
     }
 
-    public function isNodeDemand(string $nodeAddon, string $nodePattern): bool
+    public function isNodeDemand(string $nodeAddon, string $nodeTemplate): bool
     {
-        return isset($this->nodesSettings[$nodeAddon][$nodePattern]);
+        return isset($this->nodesSettings[$nodeAddon][$nodeTemplate]);
     }
 
-    public function getNodeOptions(string $nodeAddon, string $nodePattern): iterable
+    public function getNodeOptions(string $nodeAddon, string $nodeTemplate): iterable
     {
-        foreach ($this->nodesSettings[$nodeAddon][$nodePattern] as $flowName => $aliasToSettings) {
+        foreach ($this->nodesSettings[$nodeAddon][$nodeTemplate] as $nodeName => $aliasToSettings) {
             foreach ($aliasToSettings as $nodeAlias => $nodeSettings) {
                 yield [
-                    'flow_name'  => $flowName,
+                    'node_name'  => $nodeName,
                     'node_alias' => $nodeAlias,
                     'settings'   => $nodeSettings,
                 ];

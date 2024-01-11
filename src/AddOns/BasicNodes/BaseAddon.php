@@ -4,13 +4,13 @@ namespace Awwar\MasterpiecePhp\AddOns\BasicNodes;
 
 use Awwar\MasterpiecePhp\AddOn\AddOnCompileVisitorInterface;
 use Awwar\MasterpiecePhp\AddOn\AddOnInterface;
-use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContext;
+use Awwar\MasterpiecePhp\AddOn\Contract\ContractTemplate;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeFragmentCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
-use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeTemplate;
 use Awwar\MasterpiecePhp\AddOns\BasicNodes\ContractCasters\MixedToIntegerNode;
 use Awwar\MasterpiecePhp\App\base_integer_contract;
 use Awwar\MasterpiecePhp\Config\ContractName;
@@ -26,12 +26,12 @@ class BaseAddon implements AddOnInterface
 
     public function compile(AddOnCompileVisitorInterface $addOnCompileVisitor): void
     {
-        $integerContract = new Contract(addonName: self::NAME, name: 'integer');
+        $integerContract = new ContractTemplate(addonName: self::NAME, name: 'integer');
         $integerContract->addCastFrom('mixed', MixedToIntegerNode::class, 'execute');
 
-        $addOnCompileVisitor->setContract($integerContract);
+        $addOnCompileVisitor->setContractTemplate($integerContract);
 
-//        $mixedToInteger = new NodePattern(
+//        $mixedToInteger = new NodeTemplate(
 //            addonName: self::NAME,
 //            name: 'mixed_to_integer',
 //            input: NodeInputSet::create()
@@ -45,9 +45,9 @@ class BaseAddon implements AddOnInterface
 //                    ->return()->raw('new base_integer_contract(value: (int) ')->variable('input')->raw(')')->semicolon();
 //            }
 //        );
-//        $addOnCompileVisitor->setNodePattern($mixedToInteger);
+//        $addOnCompileVisitor->setNodeTemplate($mixedToInteger);
 
-        $addition = new NodePattern(
+        $addition = new NodeTemplate(
             addonName: self::NAME,
             name: 'addition',
             input: NodeInputSet::create()
@@ -63,8 +63,8 @@ class BaseAddon implements AddOnInterface
                 ->raw(')')
                 ->semicolon()
         );
-        $addOnCompileVisitor->setNodePattern($addition);
-        $subtraction = new NodePattern(
+        $addOnCompileVisitor->setNodeTemplate($addition);
+        $subtraction = new NodeTemplate(
             addonName: self::NAME,
             name: 'subtraction',
             input: NodeInputSet::create()
@@ -78,8 +78,8 @@ class BaseAddon implements AddOnInterface
                 ->raw(')')
                 ->semicolon()
         );
-        $addOnCompileVisitor->setNodePattern($subtraction);
-        $division = new NodePattern(
+        $addOnCompileVisitor->setNodeTemplate($subtraction);
+        $division = new NodeTemplate(
             addonName: self::NAME,
             name: 'division',
             input: NodeInputSet::create()
@@ -93,8 +93,8 @@ class BaseAddon implements AddOnInterface
                 ->raw(')')
                 ->semicolon()
         );
-        $addOnCompileVisitor->setNodePattern($division);
-        $multiplication = new NodePattern(
+        $addOnCompileVisitor->setNodeTemplate($division);
+        $multiplication = new NodeTemplate(
             addonName: self::NAME,
             name: 'multiplication',
             input: NodeInputSet::create()
@@ -108,8 +108,8 @@ class BaseAddon implements AddOnInterface
                 ->raw(')')
                 ->semicolon()
         );
-        $addOnCompileVisitor->setNodePattern($multiplication);
-        $power = new NodePattern(
+        $addOnCompileVisitor->setNodeTemplate($multiplication);
+        $power = new NodeTemplate(
             addonName: self::NAME,
             name: 'power',
             input: NodeInputSet::create()
@@ -122,14 +122,14 @@ class BaseAddon implements AddOnInterface
                 ->functionCall('pow')->addArgumentAsVariable('num')->addArgumentAsVariable('exponent')
                 ->end()->raw(')')->semicolon()
         );
-        $addOnCompileVisitor->setNodePattern($power);
+        $addOnCompileVisitor->setNodeTemplate($power);
 
-        $number = new NodePattern(
+        $number = new NodeTemplate(
             addonName: self::NAME,
             name: 'number',
             input: NodeInputSet::create(),
             output: new NodeOutput(name: 'value', type: new ContractName('base', 'integer')),
-            flowFragmentCompileCallback: function (FlowFragmentCompileContext $context) use ($integerContract) {
+            nodeFragmentCompileCallback: function (NodeFragmentCompileContext $context) use ($integerContract) {
                 $context->getMethodBodyGenerator()
                     ->variable($context->getSocketName())
                     ->assign()
@@ -142,14 +142,14 @@ class BaseAddon implements AddOnInterface
                 'value',
             ]
         );
-        $addOnCompileVisitor->setNodePattern($number);
+        $addOnCompileVisitor->setNodeTemplate($number);
 
-        $output = new NodePattern(
+        $output = new NodeTemplate(
             addonName: self::NAME,
             name: 'output',
             input: NodeInputSet::create(),
             output: NodeOutput::noOutput(),
-            flowFragmentCompileCallback: function (FlowFragmentCompileContext $context) {
+            nodeFragmentCompileCallback: function (NodeFragmentCompileContext $context) {
                 $firstInput = $context->getArgs()[0];
 
                 $context->getMethodBodyGenerator()
@@ -157,14 +157,14 @@ class BaseAddon implements AddOnInterface
             },
             options: [],
         );
-        $addOnCompileVisitor->setNodePattern($output);
+        $addOnCompileVisitor->setNodeTemplate($output);
 
-        $if = new NodePattern(
+        $if = new NodeTemplate(
             addonName: self::NAME,
             name: 'if',
             input: NodeInputSet::create(),
             output: NodeOutput::noOutput(),
-            flowFragmentCompileCallback: function (FlowFragmentCompileContext $context) {
+            nodeFragmentCompileCallback: function (NodeFragmentCompileContext $context) {
                 $condition = $context->getOptions()['condition'];
 
                 $replacement = [];
@@ -187,6 +187,6 @@ class BaseAddon implements AddOnInterface
             },
             options: [],
         );
-        $addOnCompileVisitor->setNodePattern($if);
+        $addOnCompileVisitor->setNodeTemplate($if);
     }
 }

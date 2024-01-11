@@ -1,6 +1,6 @@
 ---
-type: flow
-name: additional_endpoint_flow
+type: node
+name: additional_endpoint_node
 params:
     input:
         -   contract: number

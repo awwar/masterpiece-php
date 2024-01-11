@@ -2,15 +2,15 @@
 
 namespace Awwar\MasterpiecePhp\AddOn;
 
-use Awwar\MasterpiecePhp\AddOn\Contract\Contract;
-use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointPattern;
-use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
+use Awwar\MasterpiecePhp\AddOn\Contract\ContractTemplate;
+use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointTemplate;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeTemplate;
 
 interface AddOnCompileVisitorInterface
 {
-    public function setContract(Contract $contract): void;
+    public function setContractTemplate(ContractTemplate $contractTemplate): void;
 
-    public function setNodePattern(NodePattern $nodePattern): void;
+    public function setNodeTemplate(NodeTemplate $nodeTemplate): void;
 
-    public function setEndpointPattern(EndpointPattern $endpointPattern): void;
+    public function setEndpointTemplate(EndpointTemplate $endpointTemplate): void;
 }

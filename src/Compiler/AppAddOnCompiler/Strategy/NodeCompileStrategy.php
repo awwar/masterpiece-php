@@ -7,19 +7,19 @@ use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeBodyCompileContext;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInput;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeInputSet;
 use Awwar\MasterpiecePhp\AddOn\Node\NodeOutput;
-use Awwar\MasterpiecePhp\AddOn\Node\NodePattern;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeTemplate;
 use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\ConfigCompileStrategyInterface;
-use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\FlowSubcompiler;
+use Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler\NodeSubcompiler;
 use Awwar\MasterpiecePhp\Compiler\ConfigVisitorInterface;
 use Awwar\MasterpiecePhp\Config\NodeFullName;
 use Awwar\MasterpiecePhp\Container\Attributes\ForDependencyInjection;
 
 #[ForDependencyInjection]
-class FlowCompileStrategy implements ConfigCompileStrategyInterface
+class NodeCompileStrategy implements ConfigCompileStrategyInterface
 {
     public function getConfigName(): string
     {
-        return 'flow';
+        return 'node';
     }
 
     public function compile(
@@ -32,11 +32,11 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             /** @var NodeFullName $node */
             $node = $nodeSettings['node'];
 
-            $configVisitor->persistNodePatternOption(
-                flowName: $name,
+            $configVisitor->persistNodeTemplateOption(
+                nodeName: $name,
                 nodeAlias: $alias,
                 nodeAddon: $node->getAddonName(),
-                nodePattern: $node->getNodePatternName(),
+                nodeTemplate: $node->getNodeTemplateName(),
                 nodeOption: $nodeSettings['option']
             );
         }
@@ -45,9 +45,7 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
         $output = new NodeOutput(name: 'value', type: 'void');
 
         foreach ($params['input'] as $inputSettings) {
-            $input->push(
-                new NodeInput(name: $inputSettings['name'], type: $inputSettings['contract'])
-            );
+            $input->push(new NodeInput(name: $inputSettings['name'], type: $inputSettings['contract']));
         }
 
         foreach ($params['output'] as $outputSettings) {
@@ -63,18 +61,18 @@ class FlowCompileStrategy implements ConfigCompileStrategyInterface
             ],
         ];
 
-        $node = new NodePattern(
+        $node = new NodeTemplate(
             addonName: 'app',
             name: $name,
             input: $input,
             output: $output,
             nodeBodyCompileCallback: function (NodeBodyCompileContext $bodyCompileContext) use ($params, $name) {
-                $subcompiler = new FlowSubcompiler($params, $name, $bodyCompileContext->getNodePatternObtain());
+                $subcompiler = new NodeSubcompiler($params, $name, $bodyCompileContext->getNodeTemplateObtain());
 
                 $subcompiler->subcompileSocketCondition($bodyCompileContext->getMethodBodyGenerator(), 'start', 0);
             },
             options: []
         );
-        $addOnCompileVisitor->setNodePattern($node);
+        $addOnCompileVisitor->setNodeTemplate($node);
     }
 }

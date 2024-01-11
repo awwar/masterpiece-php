@@ -2,12 +2,12 @@
 
 namespace Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointCompileContext;
 
-use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
+use Awwar\MasterpiecePhp\AddOn\NodeTemplateObtainerInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\ClassGeneratorInterface;
 
 class EndpointBodyCompileContext
 {
-    public function __construct(private ClassGeneratorInterface $classGenerator, private NodePatternObtainerInterface $nodePatternObtainer)
+    public function __construct(private ClassGeneratorInterface $classGenerator, private NodeTemplateObtainerInterface $nodeTemplateObtainer)
     {
     }
 
@@ -16,8 +16,8 @@ class EndpointBodyCompileContext
         return $this->classGenerator;
     }
 
-    public function getNodePatternObtainer(): NodePatternObtainerInterface
+    public function getNodeTemplateObtainer(): NodeTemplateObtainerInterface
     {
-        return $this->nodePatternObtainer;
+        return $this->nodeTemplateObtainer;
     }
 }

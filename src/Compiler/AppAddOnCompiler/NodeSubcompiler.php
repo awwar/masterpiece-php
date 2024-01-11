@@ -2,22 +2,22 @@
 
 namespace Awwar\MasterpiecePhp\Compiler\AppAddOnCompiler;
 
-use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\FlowFragmentCompileContext;
-use Awwar\MasterpiecePhp\AddOn\NodePatternObtainerInterface;
+use Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext\NodeFragmentCompileContext;
+use Awwar\MasterpiecePhp\AddOn\NodeTemplateObtainerInterface;
 use Awwar\MasterpiecePhp\AddOn\SubcompileInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 use Awwar\MasterpiecePhp\Config\ExecuteMethodName;
 use Awwar\MasterpiecePhp\Config\NodeFullName;
 use RuntimeException;
 
-class FlowSubcompiler implements SubcompileInterface
+class NodeSubcompiler implements SubcompileInterface
 {
     private array $visitedConditions = [];
 
     public function __construct(
         private array $params,
-        private string $flowName,
-        private NodePatternObtainerInterface $nodePatternObtainer,
+        private string $nodeName,
+        private NodeTemplateObtainerInterface $nodeTemplateObtainer,
     ) {
     }
 
@@ -50,11 +50,11 @@ class FlowSubcompiler implements SubcompileInterface
         $nodeFullName = $this->params['nodes'][$nodeAlias]['node'];
         $options = $this->params['nodes'][$nodeAlias]['option'] ?? [];
 
-        $node = $this->nodePatternObtainer->getNodePattern((string) $nodeFullName);
+        $node = $this->nodeTemplateObtainer->getNodeTemplate((string) $nodeFullName);
 
-        $methodName = new ExecuteMethodName(flowName: $this->flowName, nodeAlias: $socket['node_alias']);
+        $methodName = new ExecuteMethodName(nodeName: $this->nodeName, nodeAlias: $socket['node_alias']);
 
-        $fragmentCompileContext = new FlowFragmentCompileContext(
+        $fragmentCompileContext = new NodeFragmentCompileContext(
             methodBodyGenerator: $methodBodyGenerator,
             subcompile: $this,
             socketName: $socketName,
@@ -64,7 +64,7 @@ class FlowSubcompiler implements SubcompileInterface
             options: $options
         );
 
-        $node->compileFlowFragment($fragmentCompileContext);
+        $node->compileNodeFragment($fragmentCompileContext);
 
         $nextTransitions = $socket['transition'] ?? [];
 

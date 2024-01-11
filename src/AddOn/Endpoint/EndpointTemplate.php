@@ -6,7 +6,7 @@ use Awwar\MasterpiecePhp\AddOn\Endpoint\EndpointCompileContext\EndpointBodyCompi
 use Awwar\MasterpiecePhp\Config\EndpointName;
 use Closure;
 
-class EndpointPattern
+class EndpointTemplate
 {
     public function __construct(
         private string $addonName,

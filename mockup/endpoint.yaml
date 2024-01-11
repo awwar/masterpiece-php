@@ -5,4 +5,4 @@ params:
     type: http
     method: POST
     route: /test3
-    flow: additional_endpoint_flow
+    node: additional_endpoint_node

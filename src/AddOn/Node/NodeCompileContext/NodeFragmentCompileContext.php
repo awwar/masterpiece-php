@@ -5,7 +5,7 @@ namespace Awwar\MasterpiecePhp\AddOn\Node\NodeCompileContext;
 use Awwar\MasterpiecePhp\AddOn\SubcompileInterface;
 use Awwar\MasterpiecePhp\CodeGenerator\MethodBodyGeneratorInterface;
 
-class FlowFragmentCompileContext
+class NodeFragmentCompileContext
 {
     private bool $isSkip = false;
 
