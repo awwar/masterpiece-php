@@ -149,9 +149,12 @@ class Compiler
                 ->addComment('Addon: ' . $endpointTemplate->getAddonName())
                 ->addComment('EndpointTemplate: ' . $endpointTemplate->getName());
 
+            $options = $configVisitor->getEndpointOptions($endpointFullName);
+
             $context = new EndpointBodyCompileContext(
                 $classGenerator,
-                $addOnCompileVisitor
+                $addOnCompileVisitor,
+                $options
             );
 
             $endpointTemplate->compileEndpointBody($context);

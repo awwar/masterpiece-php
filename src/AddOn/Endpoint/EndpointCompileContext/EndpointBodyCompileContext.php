@@ -7,8 +7,11 @@ use Awwar\MasterpiecePhp\CodeGenerator\ClassGeneratorInterface;
 
 class EndpointBodyCompileContext
 {
-    public function __construct(private ClassGeneratorInterface $classGenerator, private NodeTemplateObtainerInterface $nodeTemplateObtainer)
-    {
+    public function __construct(
+        private ClassGeneratorInterface $classGenerator,
+        private NodeTemplateObtainerInterface $nodeTemplateObtainer,
+        private array $options
+    ) {
     }
 
     public function getClassGenerator(): ClassGeneratorInterface
@@ -19,5 +22,10 @@ class EndpointBodyCompileContext
     public function getNodeTemplateObtainer(): NodeTemplateObtainerInterface
     {
         return $this->nodeTemplateObtainer;
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 }

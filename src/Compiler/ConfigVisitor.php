@@ -6,6 +6,8 @@ class ConfigVisitor implements ConfigVisitorInterface
 {
     private array $nodesSettings = [];
 
+    private array $endpointOptions = [];
+
     public function persistNodeTemplateOption(
         string $nodeName,
         string $nodeAlias,
@@ -32,5 +34,15 @@ class ConfigVisitor implements ConfigVisitorInterface
                 ];
             }
         }
+    }
+
+    public function persistEndpointOption(string $endpointPatternFullName, string $endpointName, array $endpointOption): void
+    {
+        $this->endpointOptions[$endpointPatternFullName][$endpointName] = $endpointOption;
+    }
+
+    public function getEndpointOptions(string $endpointPatternFullName): array
+    {
+        return $this->endpointOptions[$endpointPatternFullName];
     }
 }

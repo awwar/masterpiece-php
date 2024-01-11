@@ -7,6 +7,7 @@ use Awwar\MasterpiecePhp\Compiler\CompileContext;
 use Awwar\MasterpiecePhp\Compiler\Compiler;
 use Awwar\MasterpiecePhp\Config\Config;
 use Awwar\MasterpiecePhp\Config\ContractName;
+use Awwar\MasterpiecePhp\Config\EndpointName;
 use Awwar\MasterpiecePhp\Config\NodeFullName;
 use Awwar\MasterpiecePhp\Filesystem\Filesystem;
 use Awwar\MasterpiecePhp\Tests\CaseWithContainer;
@@ -44,6 +45,7 @@ class CompilerTest extends CaseWithContainer
                 name: 'base_endpoint',
                 type: 'endpoint',
                 params: [
+                    'template' => new EndpointName('base', 'wrap'),
                     'node' => new NodeFullName(addonName: 'app', nodeTemplateName: 'my_test_node'),
                 ]
             )
@@ -178,15 +180,15 @@ class CompilerTest extends CaseWithContainer
         include_once $settings->getGenerationPath() . '/app_my_test_node_node.php';
         include_once $settings->getGenerationPath() . '/base_addition_node.php';
         include_once $settings->getGenerationPath() . '/base_integer_contract.php';
-        include_once $settings->getGenerationPath() . '/app_base_endpoint_endpoint.php';
+        include_once $settings->getGenerationPath() . '/base_wrap_endpoint.php';
 
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_addition_node::class));
         self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_integer_contract::class));
-        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\app_base_endpoint_endpoint::class));
+        self::assertTrue(class_exists(\Awwar\MasterpiecePhp\App\base_wrap_endpoint::class));
 
         $input = \Awwar\MasterpiecePhp\App\base_integer_contract::cast_from_mixed(10);
 
-        $result = \Awwar\MasterpiecePhp\App\app_base_endpoint_endpoint::execute($input);
+        $result = \Awwar\MasterpiecePhp\App\base_wrap_endpoint::execute_for_base_endpoint($input);
 
         self::assertSame(13, $result->getValue());
     }

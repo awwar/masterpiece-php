@@ -9,4 +9,8 @@ interface ConfigVisitorInterface
     public function isNodeDemand(string $nodeAddon, string $nodeTemplate): bool;
 
     public function getNodeOptions(string $nodeAddon, string $nodeTemplate): iterable;
+
+    public function persistEndpointOption(string $endpointPatternFullName, string $endpointName, array $endpointOption): void;
+
+    public function getEndpointOptions(string $endpointPatternFullName): array;
 }
