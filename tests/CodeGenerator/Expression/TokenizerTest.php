@@ -15,14 +15,25 @@ class TokenizerTest extends TestCase
         $expectedData = [
             '(',
             '$0',
+            ' ',
             '+',
+            ' ',
             '1',
             ')',
+            ' ',
             '||',
+            ' ',
             '(',
             '$1',
+            ' ',
             '===',
-            "'hello world'"
+            'f',
+            '\'',
+            'hello',
+            ' ',
+            'world',
+            '\'',
+            null,
         ];
 
         do {
