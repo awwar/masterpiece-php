@@ -22,6 +22,7 @@
         "squizlabs/php_codesniffer": "4.0.x-dev"
     },
     "require": {
-        "psr/container": "^2.0@dev"
+        "psr/container": "^2.0@dev",
+      "ext-mbstring": "*"
     }
 }
